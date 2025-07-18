@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Afficher le Quiz{% endblock %}
+
+{% block body %}
+    <h1>Quiz</h1>
+    <div id="quiz-container">
+        {% for question in questions %}
+            <div class="question" data-question-id="{{ question.id }}" style="display: none;">
+                {% if question.imagePath %}
+                    <img src="{{ asset('uploads/images/' ~ question.imagePath) }}" alt="Question Image" style="max-width: 100%; height: auto;">
+                {% endif %}
+                <h3>{{ question.questionText }}</h3>
+                <div class="timer">Temps restant: <span class="time-left">15</span> secondes</div>
+                {% if not question.isTextual %}
+                    <div class="answers">
+                        {% for answer in question.answers %}
+                            <div class="answer">
+                                <label>
+                                    {% if question.goodAnswers|length > 1 %}
+                                        <input type="checkbox" name="answer-{{ question.id }}[]" value="{{ answer.id }}">
+                                    {% else %}
+                                        <input type="radio" name="answer-{{ question.id }}" value="{{ answer.id }}">
+                                    {% endif %}
+                                    {{ answer.textAnswer }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div>
+                        <label for="textual-answer-{{ question.id }}">Réponse :</label>
+                        <input type="text" id="textual-answer-{{ question.id }}" name="answer-{{ question.id }}">
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <div id="scoreModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="modal-title">Titre par défaut</h2>
+            <p id="scoreText">Votre score sera affiché ici.</p>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+    </style>
+
+    <button id="next-question">Question Suivante</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = Array.from(document.querySelectorAll('.question'));
+            const nextButton = document.getElementById('next-question');
+            let currentQuestionIndex = 0;
+            const answers = {};
+            const responseTimes = {};
+            let timeLeft = 15;
+            let timerInterval;
+
+            questions.forEach(question => {
+                const answerElements = Array.from(question.querySelectorAll('.answer'));
+                shuffleArray(answerElements).forEach(answer => question.querySelector('.answers').appendChild(answer));
+            });
+
+            shuffleArray(questions).forEach(question => document.getElementById('quiz-container').appendChild(question));
+
+            if (questions.length > 0) {
+                showQuestion(currentQuestionIndex);
+            }
+
+            nextButton.addEventListener('click', function() {
+                clearInterval(timerInterval);
+                const questionId = questions[currentQuestionIndex].dataset.questionId;
+                const question = questions[currentQuestionIndex];
+
+                if (question.querySelector('.answers')) {
+                    const selectedAnswers = Array.from(question.querySelectorAll('input[name^="answer-"]:checked')).map(el => el.value);
+                    if (selectedAnswers.length > 0) {
+                        answers[questionId] = selectedAnswers;
+                    }
+                } else {
+                    const textualAnswer = question.querySelector('input[type="text"]').value;
+                    if (textualAnswer) {
+                        answers[questionId] = textualAnswer;
+                    }
+                }
+
+                questions[currentQuestionIndex].style.display = 'none';
+                //set end timer
+                responseTimes[questionId].endTime = new Date();
+
+                currentQuestionIndex++;
+
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion(currentQuestionIndex);
+                } else {
+                    submitQuizResults();
+                }
+            });
+
+            function showQuestion(index) {
+                questions[index].style.display = 'block';
+                const questionId = questions[index].dataset.questionId;
+                const startTime = new Date();
+                timeLeft = 15;
+                updateTimerDisplay(questions[index]);
+                timerInterval = setInterval(function() {
+                    timeLeft--;
+                    updateTimerDisplay(questions[index]);
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        nextButton.click();
+                    }
+                }, 1000);
+
+                if (index === questions.length - 1) {
+                    nextButton.textContent = 'Terminer le Quiz';
+                }
+
+                responseTimes[questionId] = { startTime: startTime };
+            }
+
+            function updateTimerDisplay(question) {
+                question.querySelector('.time-left').textContent = timeLeft;
+            }
+
+            function showScoreModal(score, title) {
+                const modal = document.getElementById('scoreModal');
+                const scoreText = document.getElementById('scoreText');
+                const modalTitle = document.querySelector('.modal-title');
+                scoreText.textContent = `Votre score est : ${score}`;
+                modalTitle.textContent = title;
+                modal.style.display = 'block';
+
+                document.querySelector('.close').onclick = function() {
+                    modal.style.display = 'none';
+                    window.location.href = "{{ path('selectAll_quizz') }}";
+                };
+
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                        window.location.href = "{{ path('selectAll_quizz') }}";
+                    }
+                };
+            }
+
+            function submitQuizResults() {
+                const results = {
+                    answers: answers,
+                    responseTimes: responseTimes
+                };
+
+                fetch("{{ path('submit_quizz') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(results)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        showScoreModal(data.score, data.title);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        window.location.href = "{{ path('selectAll_quizz') }}";
+                    });
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+        });
+    </script>
+{% endblock %}

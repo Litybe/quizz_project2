@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+
+{% endblock %}
+
+{% block body %}
+    <h1>Sélectionner un Quiz</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Rechercher un quiz..." onkeyup="searchQuizzes()">
+    </div>
+
+    <div class="tag-filter-container">
+        <a href="{{ path('selectAll_quizz') }}" class="tag-filter {% if not selectedTag %}active{% endif %}">
+            Tous les quiz
+        </a>
+        {% for tag in tags %}
+            <a href="{{ path('selectAll_quizz', {'tag': tag.id}) }}" class="tag-filter {% if selectedTag == tag.id %}active{% endif %}">
+                {{ tag.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <form method="get" action="{{ path('answer_quizz') }}" class="quiz-form" id="quizForm">
+        <input type="hidden" name="id" id="quizId">
+    </form>
+
+    <div class="quiz-grid" id="quizGrid">
+        {% for quiz in quizzes %}
+            <div class="quiz-card" onclick="selectQuiz({{ quiz.id }})">
+                <h3>{{ quiz.name }}</h3>
+                <p>{{ quiz.description|default('Pas de description disponible') }}</p>
+                <div class="quiz-tags">
+                    {% for tag in quiz.tags %}
+                        <span class="tag-badge">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% if app.user and userQuizzStatuses[quiz.id] is defined and userQuizzStatuses[quiz.id].isDone %}
+                    <div class="quiz-done">Terminé</div>
+                {% else %}
+                    <div class="quiz-notdone">Pas encore terminé</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ path('selectAll_quizz', {'page': page - 1}) }}">&laquo; Précédent</a>
+        {% endif %}
+
+        {% for p in 1..totalPages %}
+            <a href="{{ path('selectAll_quizz', {'page': p}) }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+        {% endfor %}
+
+        {% if page < totalPages %}
+            <a href="{{ path('selectAll_quizz', {'page': page + 1}) }}">Suivant &raquo;</a>
+        {% endif %}
+    </div>
+
+    <style>
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .quiz-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            position: relative;
+            z-index: 1;
+        }
+        .quiz-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            z-index: 10;
+        }
+        .quiz-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .quiz-card p {
+            color: #666;
+        }
+        .quiz-done {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .quiz-notdone {
+            background-color: #af4c4c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .search-container {
+            margin: 20px;
+            text-align: center;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: #333;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+        .pagination a.active {
+            background-color: #FF7700;
+            color: white;
+            border: 1px solid #FF7700;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+        .tag-badge {
+            background-color: #FF7700;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .tag-filter {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+        }
+        .tag-filter:hover {
+            background-color: #e9ecef;
+            color: #FF7700;
+        }
+        .tag-filter.active {
+            background-color: #FF7700;
+            color: white;
+            border-color: #FF7700;
+        }
+    </style>
+
+    <script>
+        function selectQuiz(quizId) {
+            document.getElementById('quizId').value = quizId;
+            document.getElementById('quizForm').submit();
+        }
+
+        function searchQuizzes() {
+            let input = document.getElementById('searchInput');
+            let filter = input.value.toUpperCase();
+            let grid = document.getElementById('quizGrid');
+            let cards = grid.getElementsByClassName('quiz-card');
+
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getElementsByTagName('h3')[0];
+                if (title.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    cards[i].style.display = "";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+{% endblock %}

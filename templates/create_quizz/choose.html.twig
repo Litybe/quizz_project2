@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Choisir un Quiz{% endblock %}
+
+{% block body %}
+    <h1>Choisir un Quiz</h1>
+
+    <div class="options">
+        <a href="{{ path('quizz_create') }}" class="btn btn-primary">Créer un Nouveau Quiz</a>
+
+        <h2>Ou</h2>
+
+        <h3>Modifier un Quiz Existant</h3>
+        <ul>
+            {% for quiz in quizzes %}
+                <li>
+                    <a href="{{ path('quizz_edit', { id: quiz.id }) }}">{{ quiz.Name }}</a>
+                </li>
+            {% else %}
+                <li>Aucun quizz disponible pour modification.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

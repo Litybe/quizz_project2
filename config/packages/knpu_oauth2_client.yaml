@@ -1,0 +1,9 @@
+knpu_oauth2_client:
+    clients:
+        faceit:
+            type: generic
+            provider_class: App\Security\FaceitProvider
+            client_id: '%env(FACEIT_CLIENT_ID)%'
+            client_secret: '%env(FACEIT_CLIENT_SECRET)%'
+            redirect_route: 'connect_faceit_check'
+            redirect_params: {}

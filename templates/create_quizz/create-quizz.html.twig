@@ -1,0 +1,172 @@
+{% extends 'base.html.twig' %}
+{% block title %}Créer un Quiz{% endblock %}
+{% block body %}
+    <h1>Créer un Quiz</h1>
+    <form method="post" action="{{ path('quiz_save') }}" enctype="multipart/form-data">
+        <div>
+            <label for="quizz-name">Nom du Quiz :</label>
+            <input type="text" id="quizz-name" name="quizzName" required>
+        </div>
+        <div>
+            <label for="quizz-description">Description du Quiz :</label>
+            <input type="text" id="quizz-description" name="quizzDescription" required>
+        </div>
+
+        <!-- Ajout des champs pour les poids -->
+        <div>
+            <label for="time-weight">Poids du Temps de Réponse (0 à 1) :</label>
+            <input type="number" id="time-weight" name="timeWeight" min="0" max="1" step="0.01" required>
+        </div>
+        <div>
+            <label for="correct-answer-weight">Poids des Bonnes Réponses (0 à 1) :</label>
+            <input type="number" id="correct-answer-weight" name="correctAnswerWeight" min="0" max="1" step="0.01" required>
+        </div>
+
+        <div>
+            <label>Tags :</label>
+            <div class="tag-checkboxes">
+                {% for tag in tags %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="tags[]" value="{{ tag.id }}" id="tag-{{ tag.id }}">
+                        <label class="form-check-label" for="tag-{{ tag.id }}">
+                            {{ tag.name }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="questions-container">
+            <div class="question" data-index="0">
+                <h3>Question 1</h3>
+                <div>
+                    <label for="question-text-0">Texte de la Question :</label>
+                    <input type="text" id="question-text-0" name="questions[0][text]" required>
+                </div>
+                <div>
+                    <label for="question-type-0">Type de Question :</label>
+                    <select id="question-type-0" name="questions[0][type]" required>
+                        <option value="multiple-choice">Choix multiples</option>
+                        <option value="textual">Textuelle</option>
+                    </select>
+                </div>
+                <div id="multiple-choice-answers-0">
+                    <div class="answers">
+                        <h4>Réponses :</h4>
+                        {% for i in 0..3 %}
+                            <div class="answer">
+                                <label for="answer-text-0-{{ i }}">Réponse {{ i + 1 }} :</label>
+                                <input type="text" id="answer-text-0-{{ i }}" name="questions[0][answers][{{ i }}][text]">
+                                <label>
+                                    <input type="checkbox" name="questions[0][correctAnswers][]" value="{{ i }}">
+                                    Correcte
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="textual-answer-0" style="display: none;">
+                    <div>
+                        <label for="correct-textual-answer-0">Réponse correcte :</label>
+                        <input type="text" id="correct-textual-answer-0" name="questions[0][correctTextualAnswer]">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" id="add-question">Ajouter une Question</button>
+        <button type="submit">Enregistrer le Quiz</button>
+    </form>
+
+    <style>
+        .tag-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .form-check {
+            display: flex;
+            align-items: center;
+        }
+        .form-check-input {
+            margin-right: 5px;
+        }
+    </style>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const questionType = document.getElementById('question-type-0').value;
+            const textualAnswer = document.getElementById('correct-textual-answer-0');
+            if (questionType === 'textual' && !textualAnswer.value) {
+                alert('Veuillez remplir le champ de réponse correcte pour la question textuelle.');
+                event.preventDefault(); // Empêche la soumission du formulaire
+            }
+        });
+
+        document.getElementById('add-question').addEventListener('click', function() {
+            const container = document.getElementById('questions-container');
+            const questionDivs = container.getElementsByClassName('question');
+            const index = questionDivs.length;
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question';
+            newQuestion.setAttribute('data-index', index);
+            newQuestion.innerHTML = `
+                <h3>Question ${index + 1}</h3>
+                <div>
+                    <label for="question-text-${index}">Texte de la Question :</label>
+                    <input type="text" id="question-text-${index}" name="questions[${index}][text]" required>
+                </div>
+                <div>
+                    <label for="question-type-${index}">Type de Question :</label>
+                    <select id="question-type-${index}" name="questions[${index}][type]" required>
+                        <option value="multiple-choice">Choix multiples</option>
+                        <option value="textual">Textuelle</option>
+                    </select>
+                </div>
+                <div id="multiple-choice-answers-${index}">
+                    <div class="answers">
+                        <h4>Réponses :</h4>
+                        {% for i in 0..3 %}
+                            <div class="answer">
+                                <label for="answer-text-${index}-{{ i }}">Réponse {{ i + 1 }} :</label>
+                                <input type="text" id="answer-text-${index}-{{ i }}" name="questions[${index}][answers][{{ i }}][text]">
+                                <label>
+                                    <input type="checkbox" name="questions[${index}][correctAnswers][]" value="{{ i }}">
+                                    Correcte
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div id="textual-answer-${index}" style="display: none;">
+                    <div>
+                        <label for="correct-textual-answer-${index}">Réponse correcte :</label>
+                        <input type="text" id="correct-textual-answer-${index}" name="questions[${index}][correctTextualAnswer]">
+                    </div>
+                </div>
+            `;
+            container.appendChild(newQuestion);
+            document.getElementById(`question-type-${index}`).addEventListener('change', function() {
+                toggleAnswerType(this.value, index);
+            });
+        });
+
+        function toggleAnswerType(type, index) {
+            const multipleChoiceAnswers = document.getElementById(`multiple-choice-answers-${index}`);
+            const textualAnswer = document.getElementById(`textual-answer-${index}`);
+            if (type === 'multiple-choice') {
+                multipleChoiceAnswers.style.display = 'block';
+                textualAnswer.style.display = 'none';
+            } else {
+                multipleChoiceAnswers.style.display = 'none';
+                textualAnswer.style.display = 'block';
+            }
+        }
+
+        document.querySelectorAll('[id^="question-type-"]').forEach(function(element) {
+            element.addEventListener('change', function() {
+                const index = this.id.split('-')[2];
+                toggleAnswerType(this.value, index);
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion avec Faceit{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Connexion</h1>
+        <p>Connectez-vous avec Faceit pour accéder à votre compte.</p>
+        <a href="{{ path('connect_faceit_start') }}" class="btn-faceit">
+            <button type="button">Se connecter avec Faceit</button>
+        </a>
+    </div>
+
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .btn-faceit {
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn-faceit button {
+            background-color: #FF5500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-faceit button:hover {
+            background-color: #E64A00;
+        }
+    </style>
+{% endblock %}

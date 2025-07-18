@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des cours{% endblock %}
+
+{% block body %}
+    <h1>Sélectionner un cours</h1>
+
+    <!-- Barre de recherche -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Rechercher un cours..." onkeyup="searchCourses()">
+    </div>
+
+    <!-- Filtres par tag -->
+    <div class="tag-filter-container">
+        <a href="{{ path('app_courses_index') }}" class="tag-filter {% if not selectedTag %}active{% endif %}">
+            Tous les cours
+        </a>
+        {% for tag in tags %}
+            <a href="{{ path('app_courses_index', {'tag': tag.id, 'page': 1}) }}" class="tag-filter {% if selectedTag == tag.id %}active{% endif %}">
+                {{ tag.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Grille des cours -->
+    <div class="course-grid" id="courseGrid">
+        {% for course in pagination %}
+            <div class="course-card" onclick="location.href='{{ path('app_course_show', {'id': course.id}) }}'">
+                <h3>{{ course.title }}</h3>
+                <p>{{ course.description|default('Pas de description disponible') }}</p>
+
+                <!-- Affichage des tags -->
+                <div class="course-tags">
+                    {% for tag in course.tags %}
+                        <span class="tag-badge">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+
+                {% if app.user and userCourseStatuses[course.id] is defined and userCourseStatuses[course.id].isDone %}
+                    <div class="course-done">Terminé</div>
+                {% else %}
+                    <div class="course-notdone">Pas encore terminé</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if pagination.getCurrentPageNumber() > 1 %}
+            <a href="{{ path('app_courses_index', {'page': pagination.getCurrentPageNumber() - 1, 'tag': selectedTag}) }}">&laquo; Précédent</a>
+        {% endif %}
+        {% for p in 1..pagination.getPageCount() %}
+            <a href="{{ path('app_courses_index', {'page': p, 'tag': selectedTag}) }}" class="{% if p == pagination.getCurrentPageNumber() %}active{% endif %}">{{ p }}</a>
+        {% endfor %}
+        {% if pagination.getCurrentPageNumber() < pagination.getPageCount() %}
+            <a href="{{ path('app_courses_index', {'page': pagination.getCurrentPageNumber() + 1, 'tag': selectedTag}) }}">Suivant &raquo;</a>
+        {% endif %}
+    </div>
+
+    <style>
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .course-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            position: relative;
+            z-index: 1;
+        }
+        .course-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            z-index: 10;
+        }
+        .course-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .course-card p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .course-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .tag-badge {
+            background-color: #FF7700;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+        .course-done, .course-notdone {
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .course-done {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .course-notdone {
+            background-color: #af4c4c;
+            color: white;
+        }
+        .search-container {
+            margin: 20px;
+            text-align: center;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .tag-filter {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+        }
+        .tag-filter:hover {
+            background-color: #e9ecef;
+            color: #FF7700;
+        }
+        .tag-filter.active {
+            background-color: #FF7700;
+            color: white;
+            border-color: #FF7700;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: #333;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+        .pagination a.active {
+            background-color: #FF7700;
+            color: white;
+            border: 1px solid #FF7700;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+    </style>
+
+    <script>
+        function searchCourses() {
+            let input = document.getElementById('searchInput');
+            let filter = input.value.toUpperCase();
+            let grid = document.getElementById('courseGrid');
+            let cards = grid.getElementsByClassName('course-card');
+
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getElementsByTagName('h3')[0];
+                if (title.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    cards[i].style.display = "";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+{% endblock %}

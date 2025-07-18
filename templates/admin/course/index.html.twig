@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Cours{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Administration des cours</h1>
+
+        <a href="{{ path('admin_course_new') }}" class="btn btn-primary mb-4">Créer un nouveau cours</a>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Quiz associé</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for course in pagination %}
+                    <tr>
+                        <td>{{ course.id }}</td>
+                        <td>{{ course.title }}</td>
+                        <td>{{ course.description|slice(0, 50) }}...</td>
+                        <td>{{ course.quiz.name }}</td>
+                        <td>
+                            <a href="{{ path('admin_course_edit', {'id': course.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                            <form action="{{ path('admin_course_delete', {'id': course.id}) }}" method="post" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
+                                {% if is_granted('ROLE_ADMIN')%}
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce cours ?')">Supprimer</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+    </div>
+{% endblock %}

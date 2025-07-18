@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Modifier un utilisateur{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Modifier l'utilisateur : {{ user.Pseudo }}</h1>
+
+        {% if app.flashes('error') %}
+            <div class="alert alert-danger">
+                {{ app.flashes('error')[0] }}
+            </div>
+        {% endif %}
+
+        {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.Pseudo) }}
+            {{ form_widget(form.Pseudo, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.Pseudo) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.Email) }}
+            {{ form_widget(form.Email, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.Email) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.Roles) }}
+            <div class="form-check">
+                {{ form_widget(form.Roles) }}
+            </div>
+            {{ form_errors(form.Roles) }}
+        </div>
+
+        <div>
+            {{ form_label(form.save) }}
+        </div>
+        {{ form_end(form) }}
+
+        <a href="{{ path('admin_users') }}" class="btn btn-secondary mt-3">
+            Retour à la liste des utilisateurs
+        </a>
+    </div>
+{% endblock %}

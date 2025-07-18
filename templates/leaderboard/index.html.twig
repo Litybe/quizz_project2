@@ -1,0 +1,45 @@
+{# templates/leaderboard/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block body %}
+    <h1>Leaderboard</h1>
+
+    <label for="quizz-select">Sélectionnez un quiz :</label>
+    <select id="quizz-select">
+        {% for quizz in quizzes %}
+            <option value="{{ quizz.id }}" {% if quizz.id == selectedQuizzId %}selected{% endif %}>{{ quizz.name }}</option>
+        {% endfor %}
+    </select>
+
+    {% if noScoresMessage %}
+        <p>{{ noScoresMessage }}</p>
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Position</th>
+                <th>Utilisateur</th>
+                <th>Score</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in 0..scores|length - 1 %}
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ scores[i].IdUser.Pseudo }}</td>
+                    <td>{{ scores[i].UserScore }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <script>
+        document.getElementById('quizz-select').addEventListener('change', function() {
+            var quizzId = this.value;
+            window.location.href = "{{ path('leaderboard') }}/" + quizzId;
+        });
+    </script>
+{% endblock %}

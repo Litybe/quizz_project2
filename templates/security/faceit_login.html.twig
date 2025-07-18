@@ -1,0 +1,37 @@
+{# templates/security/faceit_login.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion avec Faceit{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Connexion avec Faceit</h1>
+        <p>Cliquez sur le bouton ci-dessous pour vous connecter avec Faceit.</p>
+        <a href="{{ path('faceit_login') }}" class="btn-faceit">
+            <button type="button">Se connecter avec Faceit</button>
+        </a>
+    </div>
+
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .btn-faceit {
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .btn-faceit button {
+            background-color: #FF5500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-faceit button:hover {
+            background-color: #E64A00;
+        }
+    </style>
+{% endblock %}

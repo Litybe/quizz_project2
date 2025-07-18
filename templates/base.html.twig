@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('css/testcs.css') }}">
+</head>
+<body>
+{% include 'header.html.twig' %}
+
+<div class="content">
+    {% block body %}{% endblock %}
+</div>
+</body>
+</html>
