@@ -43,6 +43,10 @@
                     <label for="question-text-0">Texte de la Question :</label>
                     <input type="text" id="question-text-0" name="questions[0][text]" required>
                 </div>
+                <div class="form-group">
+                    <label for="quiz_image">Image</label>
+                    <input type="file" class="form-control" id="questions-image-0" name="questions[0][image]">
+                </div>
                 <div>
                     <label for="question-type-0">Type de Question :</label>
                     <select id="question-type-0" name="questions[0][type]" required>
@@ -114,6 +118,10 @@
                 <div>
                     <label for="question-text-${index}">Texte de la Question :</label>
                     <input type="text" id="question-text-${index}" name="questions[${index}][text]" required>
+                </div>
+                <div class="form-group">
+                    <label for="quiz_image">Image</label>
+                    <input type="file" class="form-control" id="questions-image-${index}" name="questions[${index}][image]">
                 </div>
                 <div>
                     <label for="question-type-${index}">Type de Question :</label>
