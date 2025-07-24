@@ -5,13 +5,11 @@
 {% block body %}
     <h1>Sélectionner un cours</h1>
 
-    <!-- Barre de recherche -->
-    <div class="search-container">
+    <!--div class="search-container">
         <input type="text" id="searchInput" placeholder="Rechercher un cours..." onkeyup="searchCourses()">
     </div>
 
-    <!-- Filtres par tag -->
-    <div class="tag-filter-container">
+    <div-- class="tag-filter-container">
         <a href="{{ path('app_courses_index') }}" class="tag-filter {% if not selectedTag %}active{% endif %}">
             Tous les cours
         </a>
@@ -20,7 +18,14 @@
                 {{ tag.name }}
             </a>
         {% endfor %}
-    </div>
+    </div-->
+
+    {% include '_search_filters.html.twig' with {
+        searchPlaceholder: "Rechercher un cours...",
+        searchFunction: "searchCourses",
+        itemType: "cours",
+        defaultRoute: 'app_courses_index'
+    } %}
 
     <!-- Grille des cours -->
     <div class="course-grid" id="courseGrid">

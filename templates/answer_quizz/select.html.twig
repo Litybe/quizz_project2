@@ -7,7 +7,7 @@
 {% block body %}
     <h1>Sélectionner un Quiz</h1>
 
-    <div class="search-container">
+    <!--div class="search-container">
         <input type="text" id="searchInput" placeholder="Rechercher un quiz..." onkeyup="searchQuizzes()">
     </div>
 
@@ -20,7 +20,14 @@
                 {{ tag.name }}
             </a>
         {% endfor %}
-    </div>
+    </div-->
+
+    <!--{% include '_search_filters.html.twig' with {
+        searchPlaceholder: "Rechercher un quiz...",
+        searchFunction: "searchQuizzes",
+        itemType: "quiz",
+        defaultRoute: 'selectAll_quizz'
+    } %}-->
 
     <form method="get" action="{{ path('answer_quizz') }}" class="quiz-form" id="quizForm">
         <input type="hidden" name="id" id="quizId">

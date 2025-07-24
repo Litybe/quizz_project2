@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Course;
 use App\Form\CourseForm;
 use App\Repository\CourseRepository;
+use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/course')]
+#[Route('/admin/course')]
 #[IsGranted(new Expression('is_granted("ROLE_ADMIN") or is_granted("ROLE_MODO")'))]
 class AdminCourseController extends AbstractController
 {
@@ -22,8 +23,12 @@ class AdminCourseController extends AbstractController
     public function index(
         CourseRepository $courseRepository,
         PaginatorInterface $paginator,
-        Request $request
+        Request $request,
+        TagRepository $tagRepository
     ): Response {
+        $tags = $tagRepository->findAllOrderedByName();
+        $selectedTag = $request->query->get('tag');
+
         $query = $courseRepository->createQueryBuilder('c')->getQuery();
         $pagination = $paginator->paginate(
             $query,
@@ -33,6 +38,8 @@ class AdminCourseController extends AbstractController
 
         return $this->render('admin/course/index.html.twig', [
             'pagination' => $pagination,
+            'tags' => $tags,
+            'selectedTag' => $selectedTag,
         ]);
     }
 

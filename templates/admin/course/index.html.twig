@@ -1,50 +1,164 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Administration - Cours{% endblock %}
-
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Administration des cours</h1>
+<div class="container mt-5">
+    <h1 class="mb-4">Administration des cours</h1>
+    <a href="{{ path('admin_course_new') }}" class="btn btn-primary mb-4">Créer un nouveau cours</a>
 
-        <a href="{{ path('admin_course_new') }}" class="btn btn-primary mb-4">Créer un nouveau cours</a>
+    {% include '_search_filters.html.twig' with {
+    searchPlaceholder: "Rechercher un cours...",
+    searchFunction: "searchCourses",
+    itemType: "cours",
+    defaultRoute: 'admin_course_index'
+    } %}
 
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Titre</th>
-                    <th>Description</th>
-                    <th>Quiz associé</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for course in pagination %}
-                    <tr>
-                        <td>{{ course.id }}</td>
-                        <td>{{ course.title }}</td>
-                        <td>{{ course.description|slice(0, 50) }}...</td>
-                        <td>{{ course.quiz.name }}</td>
-                        <td>
-                            <a href="{{ path('admin_course_edit', {'id': course.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                            <form action="{{ path('admin_course_delete', {'id': course.id}) }}" method="post" style="display: inline;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
-                                {% if is_granted('ROLE_ADMIN')%}
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce cours ?')">Supprimer</button>
-                                {% endif %}
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    <div class="course-grid" id="courseGrid">
+        {% for course in pagination %}
+        <div class="course-card">
+            <h3>{{ course.title }}</h3>
+                <p>{{ course.description|slice(0, 50) }}...</p>
+                <p>Quiz associé: {{ course.quiz.name }}</p>
+                <!-- Affichage des tags -->
+                <div class="course-tags">
+                    {% for tag in course.tags %}
+                        <span class="tag-badge">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                <div>
+                    <a href="{{ path('admin_course_edit', {'id': course.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form action="{{ path('admin_course_delete', {'id': course.id}) }}" method="post" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
+                        {% if is_granted('ROLE_ADMIN') %}
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce cours ?')">Supprimer</button>
+                        {% endif %}
+                    </form>
+                </div>
         </div>
-
-        {% if pagination.getTotalItemCount > 10 %}
-            <div class="d-flex justify-content-center">
-                {{ knp_pagination_render(pagination) }}
+        {% else %}
+            <div class="no-courses">
+                <p>Aucun cours disponible pour le moment.</p>
             </div>
-        {% endif %}
+        {% endfor %}
     </div>
+
+    {% if pagination.getTotalItemCount > 10 %}
+        <div class="d-flex justify-content-center">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .course-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+    .course-card {
+        background: linear-gradient(145deg, #ffffff, #f0f0f0);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        position: relative;
+        z-index: 1;
+    }
+    .course-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+        z-index: 10;
+    }
+    .course-card h3 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .course-card p {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    .no-courses {
+        text-align: center;
+        width: 100%;
+        padding: 20px;
+    }
+    .search-container {
+        margin: 20px auto;
+        text-align: center;
+    }
+    .search-container input {
+        padding: 10px;
+        width: 300px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+    }
+    .tag-filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+    .tag-filter {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        text-decoration: none;
+        color: #333;
+        border: 1px solid #ddd;
+        transition: all 0.2s;
+    }
+    .tag-filter:hover {
+        background-color: #e9ecef;
+        color: #FF7700;
+    }
+    .tag-filter.active {
+        background-color: #FF7700;
+        color: white;
+        border-color: #FF7700;
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .pagination a {
+        color: #333;
+        padding: 8px 16px;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        margin: 0 4px;
+        border-radius: 4px;
+    }
+    .pagination a.active {
+        background-color: #FF7700;
+        color: white;
+        border: 1px solid #FF7700;
+    }
+    .pagination a:hover:not(.active) {
+        background-color: #ddd;
+    }
+</style>
+
+<script>
+    function searchCourses() {
+        let input = document.getElementById('searchInput');
+        let filter = input.value.toUpperCase();
+        let grid = document.getElementById('courseGrid');
+        let cards = grid.getElementsByClassName('course-card');
+        for (let i = 0; i < cards.length; i++) {
+            let title = cards[i].getElementsByTagName('h3')[0];
+            if (title.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+</script>
 {% endblock %}
