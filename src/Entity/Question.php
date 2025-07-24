@@ -21,13 +21,13 @@ class Question
     /**
      * @var Collection<int, Answer>
      */
-    #[ORM\OneToMany(targetEntity: Answer::class, mappedBy: 'Question')]
+    #[ORM\OneToMany(targetEntity: Answer::class, mappedBy: 'Question', cascade: ["persist", "remove"], orphanRemoval: true)]
     private Collection $Answers;
 
     /**
      * @var Collection<int, Answer>
      */
-    #[ORM\OneToMany(targetEntity: Answer::class, mappedBy: 'GoodAnswers')]
+    #[ORM\OneToMany(targetEntity: Answer::class, mappedBy: 'GoodAnswers', cascade: ["persist", "remove"], orphanRemoval: true)]
     private Collection $GoodAnswers;
 
     #[ORM\ManyToOne(targetEntity: Quizz::class, inversedBy: 'Questions')]

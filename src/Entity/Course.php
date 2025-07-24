@@ -32,7 +32,7 @@ class Course
     #[ORM\JoinColumn(nullable: false)]
     private ?Quizz $quiz = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $createdAt;
 
     #[ORM\Column]

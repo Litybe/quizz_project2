@@ -28,7 +28,7 @@ final class ProfileUserController extends AbstractController
         /** @var User $user */
         $user = $security->getUser();
         if (!$user) {
-            return $this->redirectToRoute('app_test');
+            return $this->redirectToRoute('app_home');
         }
 
         // Récupérer les meilleurs scores de l'utilisateur pour chaque quiz

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Quizz;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,6 +15,20 @@ class QuizzRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Quizz::class);
+    }
+
+    public function findAllPaginated(int $page = 1): Paginator
+    {
+        $query = $this->createQueryBuilder('q')
+            ->orderBy('q.id', 'DESC')
+            ->getQuery();
+
+        $paginator = new Paginator($query);
+        $paginator->getQuery()
+            ->setFirstResult(($page - 1) * 10)
+            ->setMaxResults(10);
+
+        return $paginator;
     }
 
     //    /**

@@ -5,9 +5,12 @@ namespace App\Controller;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Quizz;
+use App\Entity\Score;
+use App\Entity\UserQuizzStatus;
 use App\Repository\QuizzRepository;
 use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -36,12 +39,40 @@ final class CreateQuizzController extends AbstractController
 
 
     #[Route('/quizz/choose', name: 'quizz_choose')]
-    public function chooseQuizz(): Response
+    public function chooseQuizz(Request $request, TagRepository $tagRepository, PaginatorInterface $paginator): Response
     {
-        $quizzes = $this->_quizzRepository->findAll();
+        $selectedTagId = $request->query->get('tag');
+        $searchTerm = $request->query->get('search');
+        $page = $request->query->getInt('page', 1);
+
+        $tags = $tagRepository->findAll();
+
+        $quizzesQuery = $this->_quizzRepository->createQueryBuilder('q');
+
+        if ($selectedTagId) {
+            $quizzesQuery->join('q.tags', 't')
+                ->andWhere('t.id = :tagId')
+                ->setParameter('tagId', $selectedTagId);
+        }
+
+        if ($searchTerm) {
+            $quizzesQuery->andWhere('q.name LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        $query = $quizzesQuery->getQuery();
+
+        $quizzes = $paginator->paginate(
+            $query,
+            $page,
+            10 // Nombre de quiz par page
+        );
 
         return $this->render('create_quizz/choose.html.twig', [
             'quizzes' => $quizzes,
+            'tags' => $tags,
+            'selectedTag' => $selectedTagId,
+            'searchTerm' => $searchTerm
         ]);
     }
 
@@ -149,6 +180,44 @@ final class CreateQuizzController extends AbstractController
             'quiz' => $quiz,
             'tags' => $tags,
         ]);
+    }
+
+    #[Route('/quizz/delete/{id}', name: 'quizz_delete', methods: ['POST'])]
+    public function deleteQuiz(int $id): Response
+    {
+        $quiz = $this->_quizzRepository->find($id);
+
+        if (!$quiz) {
+            throw $this->createNotFoundException('Le quiz n\'existe pas');
+        }
+
+        // Supprimer les scores associés au quiz
+        $scoreRepository = $this->_entityManager->getRepository(Score::class);
+        $scores = $scoreRepository->findBy(['IdQuizz' => $quiz]);
+        foreach ($scores as $score) {
+            $this->_entityManager->remove($score);
+        }
+
+        // Supprimer les enregistrements de user_quizz_status associés au quiz
+        $userQuizzStatusRepository = $this->_entityManager->getRepository(UserQuizzStatus::class);
+        $userQuizzStatuses = $userQuizzStatusRepository->findBy(['Quizz' => $quiz]);
+        foreach ($userQuizzStatuses as $userQuizzStatus) {
+            $this->_entityManager->remove($userQuizzStatus);
+        }
+
+        // Supprimer les questions et réponses associées
+        foreach ($quiz->getQuestions() as $question) {
+            foreach ($question->getAnswers() as $answer) {
+                $this->_entityManager->remove($answer);
+            }
+            $this->_entityManager->remove($question);
+        }
+
+        // Supprimer le quiz
+        $this->_entityManager->remove($quiz);
+        $this->_entityManager->flush();
+
+        return $this->redirectToRoute('quizz_choose');
     }
 
     #[Route('/quizz/update/{id}', name: 'quizz_update', methods: ['POST'])]

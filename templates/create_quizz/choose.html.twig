@@ -1,24 +1,141 @@
+{# templates/create_quizz/choose.html.twig #}
 {% extends 'base.html.twig' %}
-
-{% block title %}Choisir un Quiz{% endblock %}
-
+{% block title %}Administration - Quiz{% endblock %}
 {% block body %}
-    <h1>Choisir un Quiz</h1>
+    <div class="container mt-5">
+        <h1 class="mb-4">Administration des Quiz</h1>
+        <a href="{{ path('quizz_create') }}" class="btn btn-primary mb-4">Créer un nouveau Quiz</a>
 
-    <div class="options">
-        <a href="{{ path('quizz_create') }}" class="btn btn-primary">Créer un Nouveau Quiz</a>
+        <!-- Ajouter un champ de recherche -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Rechercher un quiz..." value="{{ searchTerm }}" onchange="applyFilters()">
+        </div>
 
-        <h2>Ou</h2>
-
-        <h3>Modifier un Quiz Existant</h3>
-        <ul>
-            {% for quiz in quizzes %}
-                <li>
-                    <a href="{{ path('quizz_edit', { id: quiz.id }) }}">{{ quiz.Name }}</a>
-                </li>
-            {% else %}
-                <li>Aucun quizz disponible pour modification.</li>
+        <!-- Ajouter des filtres par tag -->
+        <div class="tag-filter-container">
+            <a href="{{ path('quizz_choose') }}" class="tag-filter {% if not selectedTag %}active{% endif %}">
+                Tous les quiz
+            </a>
+            {% for tag in tags %}
+                <a href="{{ path('quizz_choose', {'tag': tag.id, 'search': searchTerm}) }}" class="tag-filter {% if selectedTag == tag.id %}active{% endif %}">
+                    {{ tag.name }}
+                </a>
             {% endfor %}
-        </ul>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for quiz in quizzes %}
+                    <tr>
+                        <td>{{ quiz.id }}</td>
+                        <td>{{ quiz.name }}</td>
+                        <td>{{ quiz.description|slice(0, 50) }}...</td>
+                        <td>
+                            <a href="{{ path('quizz_edit', {'id': quiz.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                            <form action="{{ path('quizz_delete', {'id': quiz.id}) }}" method="post" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce quiz ?')">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">Aucun quiz disponible pour le moment.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Ajouter la section de pagination -->
+        <div class="d-flex justify-content-center">
+            {{ knp_pagination_render(quizzes) }}
+        </div>
     </div>
+
+    <style>
+        /* Styles existants */
+        .table-responsive table th,
+        .table-responsive table td {
+            padding: 15px !important;
+        }
+        .search-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        .search-container input {
+            padding: 10px;
+            width: 300px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+        }
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .tag-filter {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            transition: all 0.2s;
+        }
+        .tag-filter:hover {
+            background-color: #e9ecef;
+            color: #FF7700;
+        }
+        .tag-filter.active {
+            background-color: #FF7700;
+            color: white;
+            border-color: #FF7700;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+        .pagination a.active {
+            background-color: #FF7700;
+            color: white;
+            border: 1px solid #FF7700;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+    </style>
+
+    <script>
+        function applyFilters() {
+            let searchTerm = document.getElementById('searchInput').value;
+            let url = "{{ path('quizz_choose') }}?search=" + encodeURIComponent(searchTerm);
+            let selectedTag = "{{ selectedTag }}";
+            if (selectedTag) {
+                url += "&tag=" + encodeURIComponent(selectedTag);
+            }
+            window.location.href = url;
+        }
+    </script>
 {% endblock %}

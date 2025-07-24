@@ -22,24 +22,6 @@ final class FaceitController extends AbstractController
         return $this->render('security/faceit_login.html.twig');
     }
 
-    #[Route('/faceit-login', name: 'faceit_login2', methods: ['POST'])]
-    public function faceitLogin(Request $request, FaceitRepository $faceitRepository, EntityManagerInterface $entityManager,Security $security,): JsonResponse
-    {
-        /** @var \App\Entity\User $user */
-        $user = $security->getUser();
-        $data = json_decode($request->getContent(), true);
-        $faceitPseudo = $data['pseudoFaceit'] ?? null;
-        $faceitDetail = json_decode($faceitRepository->GetFaceitPlayerDetailByPseudo($faceitPseudo), true);
-
-        $user->setFaceitPseudo($faceitPseudo);
-        $user->setFaceitPlayerId($faceitDetail['player_id']);
-
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        return new JsonResponse($faceitDetail);
-    }
-
     #[Route('/auth/faceit-login', name: 'faceit_login')]
     public function login(SessionInterface $session)
     {

@@ -1,0 +1,123 @@
+{# templates/home/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="welcome-message">Bienvenue sur notre plateforme de quiz</h1>
+
+    <div class="content-container">
+        <section class="left-section">
+            <h2 class="section-title">Dernier Cours Mis en Ligne</h2>
+            {% if lastCourse %}
+                <a href="{{ path('app_course_show', {'id': lastCourse.id}) }}" style="text-decoration: none; color: inherit;">
+                    <div class="quiz-card">
+                        <h3>{{ lastCourse.title }}</h3>
+                        <p>{{ lastCourse.description }}</p>
+                    </div>
+                </a>
+            {% else %}
+                <p>Aucun cours disponible pour le moment.</p>
+            {% endif %}
+        </section>
+
+        <section class="right-section">
+            <h2 class="section-title">Dernier Quiz Mis en Ligne</h2>
+            {% if lastQuizz %}
+                <a href="{{ path('answer_quizz', {'id': lastQuizz.id}) }}" style="text-decoration: none; color: inherit;">
+                    <div class="quiz-card">
+                        <h3>{{ lastQuizz.name }}</h3>
+                        <p>{{ lastQuizz.description|default('Pas de description disponible') }}</p>
+                        <div class="quiz-tags">
+                            {% for tag in lastQuizz.tags %}
+                                <span class="tag-badge">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                <p>Aucun quiz disponible pour le moment.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 28px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .left-section, .right-section {
+            flex: 1;
+            margin: 0 10px; /* Ajoute une marge pour éviter que les sections ne se touchent */
+        }
+
+        .section-title {
+            color: #FF7700;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto; /* Centrer la carte */
+            max-width: 300px;
+        }
+
+        .quiz-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            z-index: 10;
+        }
+
+        .quiz-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .quiz-card p {
+            color: #666;
+        }
+
+        .quiz-tags {
+            margin-top: 10px;
+        }
+
+        .tag-badge {
+            background-color: #FF7700;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            margin-right: 5px;
+            display: inline-block;
+        }
+    </style>
+{% endblock %}
