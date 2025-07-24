@@ -41,8 +41,10 @@
             </table>
         </div>
 
-        <div class="d-flex justify-content-center">
-            {{ knp_pagination_render(pagination) }}
-        </div>
+        {% if pagination.getTotalItemCount > 10 %}
+            <div class="d-flex justify-content-center">
+                {{ knp_pagination_render(pagination) }}
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

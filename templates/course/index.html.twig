@@ -47,14 +47,16 @@
 
     <!-- Pagination -->
     <div class="pagination">
-        {% if pagination.getCurrentPageNumber() > 1 %}
-            <a href="{{ path('app_courses_index', {'page': pagination.getCurrentPageNumber() - 1, 'tag': selectedTag}) }}">&laquo; Précédent</a>
-        {% endif %}
-        {% for p in 1..pagination.getPageCount() %}
-            <a href="{{ path('app_courses_index', {'page': p, 'tag': selectedTag}) }}" class="{% if p == pagination.getCurrentPageNumber() %}active{% endif %}">{{ p }}</a>
-        {% endfor %}
-        {% if pagination.getCurrentPageNumber() < pagination.getPageCount() %}
-            <a href="{{ path('app_courses_index', {'page': pagination.getCurrentPageNumber() + 1, 'tag': selectedTag}) }}">Suivant &raquo;</a>
+        {% if pagination.getTotalItemCount > 10 %}
+            {% if pagination.getCurrentPageNumber() > 1 %}
+                <a href="{{ path('app_courses_index', {'page': pagination.getCurrentPageNumber() - 1, 'tag': selectedTag}) }}">&laquo; Précédent</a>
+            {% endif %}
+            {% for p in 1..pagination.getPageCount() %}
+                <a href="{{ path('app_courses_index', {'page': p, 'tag': selectedTag}) }}" class="{% if p == pagination.getCurrentPageNumber() %}active{% endif %}">{{ p }}</a>
+            {% endfor %}
+            {% if pagination.getCurrentPageNumber() < pagination.getPageCount() %}
+                <a href="{{ path('app_courses_index', {'page': pagination.getCurrentPageNumber() + 1, 'tag': selectedTag}) }}">Suivant &raquo;</a>
+            {% endif %}
         {% endif %}
     </div>
 

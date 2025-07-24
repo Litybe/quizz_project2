@@ -46,16 +46,18 @@
     </div>
 
     <div class="pagination">
-        {% if page > 1 %}
-            <a href="{{ path('selectAll_quizz', {'page': page - 1}) }}">&laquo; Précédent</a>
-        {% endif %}
+        {% if quizzes.getTotalItemCount > 10 %}
+            {% if page > 1 %}
+                <a href="{{ path('selectAll_quizz', {'page': page - 1}) }}">&laquo; Précédent</a>
+            {% endif %}
 
-        {% for p in 1..totalPages %}
-            <a href="{{ path('selectAll_quizz', {'page': p}) }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
-        {% endfor %}
+            {% for p in 1..totalPages %}
+                <a href="{{ path('selectAll_quizz', {'page': p}) }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+            {% endfor %}
 
-        {% if page < totalPages %}
-            <a href="{{ path('selectAll_quizz', {'page': page + 1}) }}">Suivant &raquo;</a>
+            {% if page < totalPages %}
+                <a href="{{ path('selectAll_quizz', {'page': page + 1}) }}">Suivant &raquo;</a>
+            {% endif %}
         {% endif %}
     </div>
 
