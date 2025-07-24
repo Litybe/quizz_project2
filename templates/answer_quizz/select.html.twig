@@ -7,27 +7,12 @@
 {% block body %}
     <h1>Sélectionner un Quiz</h1>
 
-    <!--div class="search-container">
-        <input type="text" id="searchInput" placeholder="Rechercher un quiz..." onkeyup="searchQuizzes()">
-    </div>
-
-    <div class="tag-filter-container">
-        <a href="{{ path('selectAll_quizz') }}" class="tag-filter {% if not selectedTag %}active{% endif %}">
-            Tous les quiz
-        </a>
-        {% for tag in tags %}
-            <a href="{{ path('selectAll_quizz', {'tag': tag.id}) }}" class="tag-filter {% if selectedTag == tag.id %}active{% endif %}">
-                {{ tag.name }}
-            </a>
-        {% endfor %}
-    </div-->
-
-    <!--{% include '_search_filters.html.twig' with {
+    {% include '_search_filters.html.twig' with {
         searchPlaceholder: "Rechercher un quiz...",
         searchFunction: "searchQuizzes",
         itemType: "quiz",
         defaultRoute: 'selectAll_quizz'
-    } %}-->
+    } %}
 
     <form method="get" action="{{ path('answer_quizz') }}" class="quiz-form" id="quizForm">
         <input type="hidden" name="id" id="quizId">
