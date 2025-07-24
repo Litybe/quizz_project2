@@ -13,7 +13,7 @@ class UserCourseStatus
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userCourseStatuses')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'UserCourseStatuses')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
