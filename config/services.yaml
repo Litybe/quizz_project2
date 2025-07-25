@@ -13,7 +13,11 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
+    Symfony\Component\Cache\Adapter\FilesystemAdapter:
+        arguments:
+            - 'app.cache'
+            - 3600  # Durée de vie du cache en secondes (ici, 1 heure)
+            - '%kernel.cache_dir%/pools'
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:

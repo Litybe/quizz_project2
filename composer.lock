@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "176bcd421901cca2dd088402be5f8514",
+    "content-hash": "7c1ba86dd4bfd7eab54e0eb1354a0c68",
     "packages": [
         {
             "name": "composer/semver",
@@ -2966,16 +2966,16 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v7.2.6",
+            "version": "v7.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "8b49dde3f5a5e9867595a3a269977f78418d75ee"
+                "reference": "7bc97a8d8cae01605e551773e72f5647e2337ae4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/8b49dde3f5a5e9867595a3a269977f78418d75ee",
-                "reference": "8b49dde3f5a5e9867595a3a269977f78418d75ee",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/7bc97a8d8cae01605e551773e72f5647e2337ae4",
+                "reference": "7bc97a8d8cae01605e551773e72f5647e2337ae4",
                 "shasum": ""
             },
             "require": {
@@ -3044,7 +3044,7 @@
                 "psr6"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache/tree/v7.2.6"
+                "source": "https://github.com/symfony/cache/tree/v7.2.8"
             },
             "funding": [
                 {
@@ -3060,7 +3060,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-04-08T09:06:23+00:00"
+            "time": "2025-06-27T19:53:16+00:00"
         },
         {
             "name": "symfony/cache-contracts",
