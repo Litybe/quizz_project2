@@ -52,7 +52,7 @@ class AdminCourseController extends AbstractController
         $form = $this->createForm(CourseForm::class, $course);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($request->isMethod('POST')){
             $entityManager->persist($course);
             $entityManager->flush();
 
