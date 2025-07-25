@@ -24,6 +24,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             max-width: 800px;
+            color: #2c3e50;
         }
         table {
             width: 100%;
@@ -56,6 +57,7 @@
         }
         .form-group {
             margin-bottom: 15px;
+            color: #2c3e50;
         }
         .form-group label {
             display: block;
@@ -104,6 +106,12 @@
             font-size: 0.875em;
             margin-top: 5px;
         }
+        .scores{
+            color: #FF7700;
+        }
+        .scores-tittle{
+            color: #2c3e50;
+        }
     </style>
 
     <div class="profile-container">
@@ -146,8 +154,8 @@
                 <table>
                     <thead>
                     <tr>
-                        <th>Quiz</th>
-                        <th>Score</th>
+                        <th class="scores-tittle">Quiz</th>
+                        <th class="scores-tittle">Score</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -158,7 +166,7 @@
                                     {{ score.IdQuizz.Name }}
                                 </a>
                             </td>
-                            <td>{{ score.UserScore }}</td>
+                            <td  class="scores" >{{ score.UserScore }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
