@@ -1,7 +1,5 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Modifier le Quiz{% endblock %}
-
 {% block body %}
     <h1>Modifier le Quiz</h1>
     <form id="quiz-form" method="post" action="{{ path('quizz_update', { id: quiz.id }) }}" enctype="multipart/form-data">
@@ -14,11 +12,11 @@
             </div>
             <div>
                 <label for="time-weight">Poids du Temps de Réponse (0 à 1) :</label>
-                <input type="number" id="time-weight" name="timeWeight" min="0" max="1" step="0.01" required>
+                <input type="number" id="time-weight" name="timeWeight" value="{{ quiz.timeWeight }}" min="0" max="1" step="0.01" required>
             </div>
             <div>
                 <label for="correct-answer-weight">Poids des Bonnes Réponses (0 à 1) :</label>
-                <input type="number" id="correct-answer-weight" name="correctAnswerWeight" min="0" max="1" step="0.01" required>
+                <input type="number" id="correct-answer-weight" name="correctAnswerWeight" value="{{ quiz.correctAnswerWeight }}" min="0" max="1" step="0.01" required>
             </div>
             <div>
                 <label>Tags :</label>
@@ -38,8 +36,12 @@
         <div id="questions-container">
             {% for question in quiz.questions %}
                 <div class="question">
-                    <h3>Question</h3>
+                    <h3>Question {{ loop.index0 }}</h3>
                     <input type="text" class="form-control" name="questions[{{ loop.index0 }}][text]" value="{{ question.questionText }}" required>
+                    <div class="form-group">
+                        <label for="quiz_image">Image</label>
+                        <input type="file" class="form-control" id="questions-image-0" name="questions[0][image]" value="{{ question.ImagePath }}">
+                    </div>
                     <div>
                         <label for="question-type-{{ loop.index0 }}">Type de Question :</label>
                         <select id="question-type-{{ loop.index0 }}" name="questions[{{ loop.index0 }}][type]" required>
@@ -51,7 +53,7 @@
                         <div class="answers-container">
                             {% for answer in question.answers %}
                                 <div class="answer">
-                                    <input type="text" class="form-control" name="questions[{{ loop.parent.loop.index0 }}][answers][{{ loop.index0 }}][text]" value="{{ answer.textAnswer }}" required>
+                                    <input type="text" class="form-control" name="questions[{{ loop.parent.loop.index0 }}][answers][{{ loop.index0 }}][text]" value="{{ answer.textAnswer }}">
                                     <label>
                                         <input type="checkbox" name="questions[{{ loop.parent.loop.index0 }}][correctAnswers][]" value="{{ loop.index0 }}" {% if question.goodAnswers.contains(answer) %}checked{% endif %}> Correcte
                                     </label>
@@ -63,7 +65,7 @@
                     <div id="textual-answer-{{ loop.index0 }}" style="{{ question.isTextual ? '' : 'display: none;' }}">
                         <div>
                             <label for="correct-textual-answer-{{ loop.index0 }}">Réponse correcte :</label>
-                            <input type="text" id="correct-textual-answer-{{ loop.index0 }}" name="questions[{{ loop.index0 }}][correctTextualAnswer]" value="{{ question.correctTextualAnswer }}" required>
+                            <input type="text" id="correct-textual-answer-{{ loop.index0 }}" name="questions[{{ loop.index0 }}][correctTextualAnswer]" value="{{ question.correctTextualAnswer }}">
                         </div>
                     </div>
                     <button type="button" class="btn btn-danger remove-question">Supprimer la Question</button>
@@ -71,9 +73,9 @@
             {% endfor %}
         </div>
         <button type="button" id="add-question" class="btn btn-secondary">Ajouter une Question</button>
+        <input type="hidden" id="deleted-questions" name="deletedQuestions" value="">
         <button type="submit" class="btn btn-primary">Mettre à jour le Quiz</button>
     </form>
-
     <style>
         .tag-checkboxes {
             display: flex;
@@ -88,69 +90,88 @@
             margin-right: 5px;
         }
     </style>
-
     <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const questionType = document.getElementById('question-type-0').value;
+            const textualAnswer = document.getElementById('correct-textual-answer-0');
+            if (questionType === 'textual' && !textualAnswer.value) {
+                alert('Veuillez remplir le champ de réponse correcte pour la question textuelle.');
+                event.preventDefault(); // Empêche la soumission du formulaire
+            }
+        });
+
         document.getElementById('add-question').addEventListener('click', function() {
-            const questionsContainer = document.getElementById('questions-container');
-            const questionIndex = questionsContainer.children.length;
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question';
-            questionDiv.innerHTML = `
-                <h3>Question</h3>
-                <input type="text" class="form-control" name="questions[${questionIndex}][text]" required>
+            const container = document.getElementById('questions-container');
+            const questionDivs = container.getElementsByClassName('question');
+            const index = questionDivs.length;
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question';
+            newQuestion.setAttribute('data-index', index);
+            newQuestion.innerHTML = `
+                <h3>Question ${index + 1}</h3>
                 <div>
-                    <label for="question-type-${questionIndex}">Type de Question :</label>
-                    <select id="question-type-${questionIndex}" name="questions[${questionIndex}][type]" required>
+                    <label for="question-text-${index}">Texte de la Question :</label>
+                    <input type="text" id="question-text-${index}" name="questions[${index}][text]" required>
+                </div>
+                <div class="form-group">
+                    <label for="quiz_image">Image</label>
+                    <input type="file" class="form-control" id="questions-image-${index}" name="questions[${index}][image]">
+                </div>
+                <div>
+                    <label for="question-type-${index}">Type de Question :</label>
+                    <select id="question-type-${index}" name="questions[${index}][type]" required>
                         <option value="multiple-choice">Choix multiples</option>
                         <option value="textual">Textuelle</option>
                     </select>
                 </div>
-                <div id="multiple-choice-answers-${questionIndex}">
-                    <div class="answers-container">
-                        <div class="answer">
-                            <input type="text" class="form-control" name="questions[${questionIndex}][answers][0][text]" required>
-                            <label>
-                                <input type="checkbox" name="questions[${questionIndex}][correctAnswers][]" value="0"> Correcte
-                            </label>
-                        </div>
+                <div id="multiple-choice-answers-${index}">
+                    <div class="answers">
+                        <h4>Réponses :</h4>
+                        {% for i in 0..3 %}
+                            <div class="answer">
+                                <label for="answer-text-${index}-{{ i }}">Réponse {{ i + 1 }} :</label>
+                                <input type="text" id="answer-text-${index}-{{ i }}" name="questions[${index}][answers][{{ i }}][text]">
+                                <label>
+                                    <input type="checkbox" name="questions[${index}][correctAnswers][]" value="{{ i }}">
+                                    Correcte
+                                </label>
+                            </div>
+                        {% endfor %}
                     </div>
                     <button type="button" class="btn btn-secondary add-answer">Ajouter une Réponse</button>
                 </div>
-                <div id="textual-answer-${questionIndex}" style="display: none;">
+                <div id="textual-answer-${index}" style="display: none;">
                     <div>
-                        <label for="correct-textual-answer-${questionIndex}">Réponse correcte :</label>
-                        <input type="text" id="correct-textual-answer-${questionIndex}" name="questions[${questionIndex}][correctTextualAnswer]" required>
+                        <label for="correct-textual-answer-${index}">Réponse correcte :</label>
+                        <input type="text" id="correct-textual-answer-${index}" name="questions[${index}][correctTextualAnswer]">
                     </div>
                 </div>
                 <button type="button" class="btn btn-danger remove-question">Supprimer la Question</button>
             `;
-            questionsContainer.appendChild(questionDiv);
-            document.getElementById(`question-type-${questionIndex}`).addEventListener('change', function() {
-                toggleAnswerType(this.value, questionIndex);
+            container.appendChild(newQuestion);
+
+            // Add event listeners for newly added question type change
+            document.getElementById(`question-type-${index}`).addEventListener('change', function() {
+                toggleAnswerType(this.value, index);
             });
-        });
 
-        document.getElementById('questions-container').addEventListener('click', function(event) {
-            if (event.target.classList.contains('add-answer')) {
-                const answersContainer = event.target.previousElementSibling;
-                const questionIndex = Array.from(answersContainer.parentElement.parentElement.children).indexOf(answersContainer.parentElement);
-                const answerIndex = answersContainer.children.length;
-                const answerDiv = document.createElement('div');
-                answerDiv.className = 'answer';
-                answerDiv.innerHTML = `
-                    <input type="text" class="form-control" name="questions[${questionIndex}][answers][${answerIndex}][text]" required>
-                    <label>
-                        <input type="checkbox" name="questions[${questionIndex}][correctAnswers][]" value="${answerIndex}"> Correcte
-                    </label>
-                `;
-                answersContainer.appendChild(answerDiv);
-            }
-        });
+            // Add event listeners for newly added remove button
+            newQuestion.querySelector('.remove-question').addEventListener('click', function() {
+                const questionDiv = this.closest('.question');
+                const index = Array.from(questionDiv.parentElement.children).indexOf(questionDiv);
 
-        document.getElementById('questions-container').addEventListener('click', function(event) {
-            if (event.target.classList.contains('remove-question')) {
-                event.target.parentElement.remove();
-            }
+                // Ajoutez l'index à la liste des questions supprimées
+                let deletedQuestions = document.getElementById('deleted-questions').value;
+                if (deletedQuestions) {
+                    deletedQuestions += ',' + index;
+                } else {
+                    deletedQuestions = index;
+                }
+                document.getElementById('deleted-questions').value = deletedQuestions;
+
+                // Supprimez la question de l'interface
+                questionDiv.remove();
+            });
         });
 
         function toggleAnswerType(type, index) {
@@ -170,6 +191,26 @@
                 const index = this.id.split('-')[2];
                 toggleAnswerType(this.value, index);
             });
+        });
+
+        // Ajoutez un gestionnaire d'événements pour les boutons "Supprimer la Question"
+        document.getElementById('questions-container').addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('remove-question')) {
+                const questionDiv = event.target.closest('.question');
+                const index = Array.from(questionDiv.parentElement.children).indexOf(questionDiv);
+
+                // Ajoutez l'index à la liste des questions supprimées
+                let deletedQuestions = document.getElementById('deleted-questions').value;
+                if (deletedQuestions) {
+                    deletedQuestions += ',' + index;
+                } else {
+                    deletedQuestions = index;
+                }
+                document.getElementById('deleted-questions').value = deletedQuestions;
+
+                // Supprimez la question de l'interface
+                questionDiv.remove();
+            }
         });
     </script>
 {% endblock %}

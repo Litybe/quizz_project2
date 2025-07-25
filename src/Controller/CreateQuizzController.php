@@ -234,7 +234,7 @@ final class CreateQuizzController extends AbstractController
         $quiz->setCorrectAnswerWeight($request->request->get('correctAnswerWeight'));
 
         // Gestion des tags
-        $tagIds = $request->request->get('tags');
+        $tagIds = $request->request->all('tags');
         // Effacer les tags actuels
         foreach ($quiz->getTags() as $tag) {
             $quiz->removeTag($tag);
@@ -258,7 +258,7 @@ final class CreateQuizzController extends AbstractController
 
         $submittedQuestionIds = array_keys($questionsData);
 
-        $deletedQuestionIds = array_diff($existingQuestionIds, $submittedQuestionIds);
+        /*$deletedQuestionIds = $request->request->get('deletedQuestions');
 
         foreach ($deletedQuestionIds as $deletedQuestionId) {
             $deletedQuestion = $this->_entityManager->getRepository(Question::class)->find($deletedQuestionId);
@@ -269,20 +269,21 @@ final class CreateQuizzController extends AbstractController
                 $quiz->removeQuestion($deletedQuestion);
                 $this->_entityManager->remove($deletedQuestion);
             }
-        }
+        }*/
 
         foreach ($questionsData as $index => $questionData) {
             $question = $quiz->getQuestions()[$index] ?? new Question();
+
             $question->setQuestionText($questionData['text']);
             $question->setIsTextual($questionData['type'] === 'textual');
+
+            if (isset($files['questions'][$index]['image']) && $files['questions'][$index]['image'] instanceof UploadedFile) {
+                $this->handleImageUpload($question, $files['questions'][$index]['image']);
+            }
 
             if ($question->isTextual()) {
                 $question->setCorrectTextualAnswer($questionData['correctTextualAnswer']);
             } else {
-                if (isset($files['questions'][$index]['image']) && $files['questions'][$index]['image'] instanceof UploadedFile) {
-                    $this->handleImageUpload($question, $files['questions'][$index]['image']);
-                }
-
                 $this->updateAnswers($question, $questionData);
             }
 
