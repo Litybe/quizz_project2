@@ -35,7 +35,7 @@ class AdminUserController extends AbstractController
         ]);
     }
 
-    /*#[Route('/admin/users/{id}/edit', name: 'admin_user_edit')]
+    #[Route('/admin/users/{id}/edit', name: 'admin_user_edit')]
     public function editUser(
         User $user,
         Request $request,
@@ -43,7 +43,9 @@ class AdminUserController extends AbstractController
     ): Response {
         // Créer le formulaire pour modifier l'utilisateur
         $form = $this->createForm(AdminEditUserForm::class, $user);
-        if ($form->isSubmitted() && $form->isValid()) {
+        $form->handleRequest($request);
+
+        if ($request->isMethod('POST')){
             // Sauvegarder les modifications
             $entityManager->persist($user);
             $entityManager->flush();
@@ -56,9 +58,9 @@ class AdminUserController extends AbstractController
             'user' => $user,
             'form' => $form->createView(),
         ]);
-    }*/
+    }
 
-    #[Route('/admin/users/{id}/edit', name: 'admin_user_edit')]
+    /*#[Route('/admin/users/{id}/edit', name: 'admin_user_edit')]
     public function editUser(
         User $user,
         Request $request,
@@ -106,5 +108,5 @@ class AdminUserController extends AbstractController
         return $this->render('admin/users/edit.html.twig', [
             'user' => $user,
         ]);
-    }
+    }*/
 }

@@ -1,4 +1,3 @@
-{# templates/admin/users/edit.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Administration - Modifier un utilisateur{% endblock %}
@@ -13,52 +12,35 @@
             </div>
         {% endif %}
 
-        <form method="post" action="{{ path('admin_user_edit', {'id': user.id}) }}">
-            <div class="form-group">
-                <label for="pseudo">Pseudo :</label>
-                <input type="text" id="pseudo" name="pseudo" class="form-control" value="{{ user.Pseudo }}" required>
-            </div>
+        {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.Pseudo) }}
+            {{ form_widget(form.Pseudo, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.Pseudo) }}
+        </div>
 
-            <div class="form-group">
-                <label for="email">Adresse Email :</label>
-                <input type="email" id="email" name="email" class="form-control" value="{{ user.Email }}" required>
-            </div>
+        <div class="form-group">
+            {{ form_label(form.Email) }}
+            {{ form_widget(form.Email, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.Email) }}
 
-            <div class="form-group">
-                <label>Rôles :</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles[]" value="ROLE_USER" id="role-user" {% if 'ROLE_USER' in user.getRoles() %}checked{% endif %}>
-                    <label class="form-check-label" for="role-user">
-                        Utilisateur
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles[]" value="ROLE_PREMIUM" id="role-premium" {% if 'ROLE_PREMIUM' in user.getRoles() %}checked{% endif %}>
-                    <label class="form-check-label" for="role-admin">
-                        Premium (Payant repére)
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles[]" value="ROLE_MODO" id="role-modo" {% if 'ROLE_MODO' in user.getRoles() %}checked{% endif %}>
-                    <label class="form-check-label" for="role-admin">
-                        Modérateur
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles[]" value="ROLE_ADMIN" id="role-admin" {% if 'ROLE_ADMIN' in user.getRoles() %}checked{% endif %}>
-                    <label class="form-check-label" for="role-admin">
-                        Administrateur
-                    </label>
-                </div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.Roles) }}
+            <div class="form-check">
+                {{ form_widget(form.Roles) }}
             </div>
+            {{ form_errors(form.Roles) }}
+        </div>
 
-            <button type="submit" class="btn btn-primary">
-                Mettre à jour le profil
-            </button>
-        </form>
+        <div>
+            {{ form_label(form.save) }}
+        </div>
+        {{ form_end(form) }}
 
         <a href="{{ path('admin_users') }}" class="btn btn-secondary mt-3">
             Retour à la liste des utilisateurs
         </a>
     </div>
+
 {% endblock %}
