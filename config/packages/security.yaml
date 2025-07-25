@@ -15,8 +15,8 @@ security:
         main:
             lazy: true
             form_login:
-                login_path: login
-                check_path: login
+                login_path: faceit_login
+                check_path: faceit_login
                 enable_csrf: true
             logout:
                 path: logout
