@@ -38,9 +38,15 @@
         </div>
         {{ form_end(form) }}
 
-        <a href="{{ path('admin_users') }}" class="btn btn-secondary mt-3">
+        <a href="{{ path('admin_users') }}" class="btn btn-secondary mt-3 equal-width-btn">
             Retour à la liste des utilisateurs
         </a>
     </div>
 
+    <style>
+        .equal-width-btn {
+            min-width: 100px; /* Définissez la largeur minimale souhaitée pour les boutons */
+            min-height: 44px;
+        }
+    </style>
 {% endblock %}

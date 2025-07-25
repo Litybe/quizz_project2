@@ -24,15 +24,15 @@
                         <span class="tag-badge">{{ tag.name }}</span>
                     {% endfor %}
                 </div>
-                <div>
-                    <a href="{{ path('admin_course_edit', {'id': course.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
-                    <form action="{{ path('admin_course_delete', {'id': course.id}) }}" method="post" style="display: inline;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
-                        {% if is_granted('ROLE_ADMIN') %}
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce cours ?')">Supprimer</button>
-                        {% endif %}
-                    </form>
-                </div>
+            <div>
+                <a href="{{ path('admin_course_edit', {'id': course.id}) }}" class="btn btn-sm btn-warning equal-width-btn">Modifier</a>
+                <form action="{{ path('admin_course_delete', {'id': course.id}) }}" method="post" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ course.id) }}">
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <button type="submit" class="btn btn-sm btn-danger equal-width-btn" onclick="return confirm('Voulez-vous vraiment supprimer ce cours ?')">Supprimer</button>
+                    {% endif %}
+                </form>
+            </div>
         </div>
         {% else %}
             <div class="no-courses">
@@ -49,6 +49,10 @@
 </div>
 
 <style>
+    .equal-width-btn {
+        min-width: 100px; /* Définissez la largeur minimale souhaitée pour les boutons */
+        min-height: 44px;
+    }
     .course-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between">
-                    <a href="{{ path('admin_tag_index') }}" class="btn btn-secondary">
+                    <a href="{{ path('admin_tag_index') }}" class="btn btn-secondary equal-width-btn">
                         <i class="fas fa-arrow-left"></i> Retour à la liste
                     </a>
                 </div>
@@ -24,4 +24,11 @@
             </div>
         </div>
     </div>
+
+<style>
+    .equal-width-btn {
+        min-width: 100px; /* Définissez la largeur minimale souhaitée pour les boutons */
+        min-height: 44px;
+    }
+</style>
 {% endblock %}

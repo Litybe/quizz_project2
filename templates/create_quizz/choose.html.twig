@@ -25,10 +25,10 @@
                         {% endfor %}
                     </div>
                     <div>
-                        <a href="{{ path('quizz_edit', {'id': quiz.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        <a href="{{ path('quizz_edit', {'id': quiz.id}) }}" class="btn btn-sm btn-warning equal-width-btn">Modifier</a>
                         <form action="{{ path('quizz_delete', {'id': quiz.id}) }}" method="post" style="display: inline;">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce quiz ?')">Supprimer</button>
+                            <button type="submit" class="btn btn-sm btn-danger equal-width-btn" onclick="return confirm('Voulez-vous vraiment supprimer ce quiz ?')">Supprimer</button>
                         </form>
                     </div>
                 </div>
@@ -46,6 +46,10 @@
     </div>
 
     <style>
+        .equal-width-btn {
+            min-width: 100px; /* Définissez la largeur minimale souhaitée pour les boutons */
+            min-height: 44px;
+        }
         .quiz-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

@@ -42,18 +42,18 @@
                             <td>{{ tag.name }}</td>
                             <td>{{ tag.courses|length }}</td>
                             <td>
-                                <a href="{{ path('admin_tag_edit', {'id': tag.id}) }}" class="btn btn-sm btn-warning">
+                                <a href="{{ path('admin_tag_edit', {'id': tag.id}) }}" class="btn btn-sm btn-warning equal-width-btn">
                                     <i class="fas fa-edit"></i> Modifier
                                 </a>
                                 {% if tag.courses|length == 0 %}
                                     <form action="{{ path('admin_tag_delete', {'id': tag.id}) }}" method="post" style="display: inline-block;">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tag.id) }}">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce tag ?')">
+                                        <button type="submit" class="btn btn-sm btn-danger equal-width-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce tag ?')">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </button>
                                     </form>
                                 {% else %}
-                                    <button class="btn btn-sm btn-danger disabled" title="Ce tag est utilisé par {{ tag.courses|length }} cours">
+                                    <button class="btn btn-sm btn-danger disabled equal-width-btn" title="Ce tag est utilisé par {{ tag.courses|length }} cours">
                                         <i class="fas fa-trash"></i> Supprimer
                                     </button>
                                 {% endif %}
@@ -69,13 +69,18 @@
             </div>
         {% endif %}
     </div>
-{% endblock %}
-
-{% block stylesheets %}
     <style>
         .disabled {
             opacity: 0.65;
             cursor: not-allowed;
         }
+        .equal-width-btn {
+            min-width: 100px; /* Définissez la largeur minimale souhaitée pour les boutons */
+            min-height: 44px;
+        }
     </style>
+{% endblock %}
+
+{% block stylesheets %}
+
 {% endblock %}

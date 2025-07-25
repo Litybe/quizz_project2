@@ -54,7 +54,7 @@ class UserProfileForm extends AbstractType
             ->add('save', SubmitType::class, [
                 'label' => 'Mettre à jour le profil',
                 'attr' => [
-                    'class' => 'btn btn-primary'
+                    'class' => 'btn btn-primary equal-width-btn'
                 ]
             ]);
     }
