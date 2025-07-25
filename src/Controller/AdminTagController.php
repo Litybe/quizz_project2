@@ -32,12 +32,13 @@ class AdminTagController extends AbstractController
         $form->handleRequest($request);
 
         //if ($form->isSubmitted() && $form->isValid()) {
+        if ($request->isMethod('POST')){
             $entityManager->persist($tag);
             $entityManager->flush();
 
             //$this->addFlash('success', 'Le tag a été créé avec succès!');
             return $this->redirectToRoute('admin_tag_index');
-        //}
+        }
 
         return $this->render('admin/tag/new.html.twig', [
             'tag' => $tag,
