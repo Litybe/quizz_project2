@@ -4,37 +4,208 @@
 {% block title %}Leaderboard{% endblock %}
 
 {% block body %}
-    <h1>Leaderboard</h1>
+    <div class="leaderboard-container">
+        <h1 class="leaderboard-title">🏆 Leaderboard</h1>
 
-    <label for="quizz-select">Sélectionnez un quiz :</label>
-    <select id="quizz-select">
-        {% for quizz in quizzes %}
-            <option value="{{ quizz.id }}" {% if quizz.id == selectedQuizzId %}selected{% endif %}>{{ quizz.name }}</option>
-        {% endfor %}
-    </select>
+        <div class="quizz-selector">
+            <label for="quizz-select">Sélectionnez un quiz :</label>
+            <select id="quizz-select" class="quizz-dropdown">
+                {% for quizz in quizzes %}
+                    <option value="{{ quizz.id }}" {% if quizz.id == selectedQuizzId %}selected{% endif %}>{{ quizz.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    {% if noScoresMessage %}
-        <p>{{ noScoresMessage }}</p>
-    {% else %}
-        <table>
-            <thead>
-            <tr>
-                <th>Position</th>
-                <th>Utilisateur</th>
-                <th>Score</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for i in 0..scores|length - 1 %}
-                <tr>
-                    <td>{{ i + 1 }}</td>
-                    <td>{{ scores[i].IdUser.Pseudo }}</td>
-                    <td>{{ scores[i].UserScore }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+        {% if noScoresMessage %}
+            <div class="no-scores-message">
+                <p>{{ noScoresMessage }}</p>
+            </div>
+        {% else %}
+            <div class="table-container">
+                <table class="leaderboard-table">
+                    <thead>
+                    <tr>
+                        <th class="position-header">Position</th>
+                        <th class="user-header">Utilisateur</th>
+                        <th class="score-header">Score</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in 0..scores|length - 1 %}
+                        <tr class="{% if i == 0 %}gold{% elseif i == 1 %}silver{% elseif i == 2 %}bronze{% endif %}">
+                            <td class="position-cell">
+                                {% if i == 0 %}
+                                    🥇
+                                {% elseif i == 1 %}
+                                    🥈
+                                {% elseif i == 2 %}
+                                    🥉
+                                {% else %}
+                                    {{ i + 1 }}
+                                {% endif %}
+                            </td>
+                            <td class="user-cell">{{ scores[i].IdUser.Pseudo }}</td>
+                            <td class="score-cell">{{ scores[i].UserScore }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .leaderboard-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .leaderboard-title {
+            text-align: center;
+            color: #FF7700;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .quizz-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quizz-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #e0e0e0;
+            font-size: 1.1em;
+        }
+
+        .quizz-dropdown {
+            padding: 10px 15px;
+            border: 2px solid #FF7700;
+            border-radius: 8px;
+            font-size: 1em;
+            background-color: white;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quizz-dropdown:hover {
+            border-color: #e06b00;
+            box-shadow: 0 2px 8px rgba(255, 119, 0, 0.3);
+        }
+
+        .quizz-dropdown:focus {
+            outline: none;
+            border-color: #e06b00;
+            box-shadow: 0 0 0 3px rgba(255, 119, 0, 0.2);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .leaderboard-table th {
+            background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 50%, #ff8c42 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 3px solid #2a2a2a;
+            box-shadow: 0 2px 10px rgba(255, 119, 0, 0.3);
+        }
+
+        .leaderboard-table td {
+            padding: 15px 10px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 1em;
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .position-cell {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+
+        .user-cell {
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .score-cell {
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.1em;
+        }
+
+        /* Styles pour les médailles */
+        .gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+        }
+
+        .bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+        }
+
+        .gold:hover, .silver:hover, .bronze:hover {
+            filter: brightness(1.1);
+        }
+
+        .no-scores-message {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .leaderboard-container {
+                padding: 10px;
+            }
+            
+            .leaderboard-title {
+                font-size: 2em;
+            }
+            
+            .leaderboard-table th,
+            .leaderboard-table td {
+                padding: 10px 5px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
 
     <script>
         document.getElementById('quizz-select').addEventListener('change', function() {

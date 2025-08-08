@@ -8,31 +8,71 @@
         {% for question in questions %}
             <div class="question" data-question-id="{{ question.id }}" style="display: none;">
                 {% if question.imagePath %}
-                    <img src="{{ asset('uploads/images/' ~ question.imagePath) }}" alt="Question Image" style="max-width: 100%; height: auto;">
-                {% endif %}
-                <h3>{{ question.questionText }}</h3>
-                <div class="timer">Temps restant: <span class="time-left">15</span> secondes</div>
-                {% if not question.isTextual %}
-                    <div class="answers">
-                        {% for answer in question.answers %}
-                            <div class="answer">
-                                <label>
-                                    {% if question.goodAnswers|length > 1 %}
-                                        <input type="checkbox" name="answer-{{ question.id }}[]" value="{{ answer.id }}">
-                                    {% else %}
-                                        <input type="radio" name="answer-{{ question.id }}" value="{{ answer.id }}">
-                                    {% endif %}
-                                    {{ answer.textAnswer }}
-                                </label>
-                            </div>
-                        {% endfor %}
+                    <div class="question-with-image">
+                        <div class="image-container">
+                            <img src="{{ asset('uploads/images/' ~ question.imagePath) }}" alt="Question Image" style="max-width: 1080px; max-height: 650px; width: auto; height: auto;">
+                        </div>
+                        <div class="content-container">
+                            <h3>{{ question.questionText }}</h3>
+                            <div class="timer">Temps restant: <span class="time-left">15</span> secondes</div>
+                            {% if not question.isTextual %}
+                                <div class="answers">
+                                    {% for answer in question.answers %}
+                                        <div class="answer">
+                                            <label>
+                                                {% if question.goodAnswers|length > 1 %}
+                                                    <input type="checkbox" name="answer-{{ question.id }}[]" value="{{ answer.id }}">
+                                                {% else %}
+                                                    <input type="radio" name="answer-{{ question.id }}" value="{{ answer.id }}">
+                                                {% endif %}
+                                                {{ answer.textAnswer }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div>
+                                    <label for="textual-answer-{{ question.id }}">Réponse :</label>
+                                    <input type="text" id="textual-answer-{{ question.id }}" name="answer-{{ question.id }}">
+                                </div>
+                            {% endif %}
+                            <div class="next-button-container">
+                                <button id="next-question" class="btn btn-secondary mt-3 equal-width-btn">Question Suivante</button>
+                            </div> 
+                        </div>
                     </div>
                 {% else %}
-                    <div>
-                        <label for="textual-answer-{{ question.id }}">Réponse :</label>
-                        <input type="text" id="textual-answer-{{ question.id }}" name="answer-{{ question.id }}">
+                    <div class="content-container-no-image">
+                        <h3>{{ question.questionText }}</h3>
+                        <div class="timer">Temps restant: <span class="time-left">15</span> secondes</div>
+                        {% if not question.isTextual %}
+                            <div class="answers">
+                                {% for answer in question.answers %}
+                                    <div class="answer">
+                                        <label>
+                                            {% if question.goodAnswers|length > 1 %}
+                                                <input type="checkbox" name="answer-{{ question.id }}[]" value="{{ answer.id }}">
+                                            {% else %}
+                                                <input type="radio" name="answer-{{ question.id }}" value="{{ answer.id }}">
+                                            {% endif %}
+                                            {{ answer.textAnswer }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div>
+                                <label for="textual-answer-{{ question.id }}">Réponse :</label>
+                                <input type="text" id="textual-answer-{{ question.id }}" name="answer-{{ question.id }}">
+                            </div>
+                        {% endif %}
+                        <div class="next-button-container">
+                            <button id="next-question" class="btn btn-secondary mt-3 equal-width-btn">Question Suivante</button>
+                        </div>
                     </div>
                 {% endif %}
+                
+                
             </div>
         {% endfor %}
     </div>
@@ -45,39 +85,374 @@
     </div>
 
     <style>
+        .question-with-image {
+            display: flex;
+            gap: 0;
+            align-items: flex-start;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .image-container {
+            flex: 0 0 auto;
+        }
+        
+        .content-container {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 350px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .content-container h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        .content-container .timer {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .content-container .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .content-container .answer {
+            padding: 12px 16px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background-color: #ffffff;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .content-container .answer:hover {
+            background-color: #e3f2fd;
+            border-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .content-container .answer label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .content-container .answer input[type="radio"],
+        .content-container .answer input[type="checkbox"] {
+            margin: 0;
+            transform: scale(1.2);
+        }
+        
+        .content-container input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .next-button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .next-button-container .btn {
+            background-color: #ff6b35;
+            border-color: #ff6b35;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .next-button-container .btn:hover {
+            background-color: #e55a2b;
+            border-color: #e55a2b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .content-container-no-image {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .content-container-no-image h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        .content-container-no-image .timer {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .content-container-no-image .answers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .content-container-no-image .answer {
+            padding: 12px 16px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            background-color: #ffffff;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .content-container-no-image .answer:hover {
+            background-color: #e3f2fd;
+            border-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .content-container-no-image .answer label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .content-container-no-image .answer input[type="radio"],
+        .content-container-no-image .answer input[type="checkbox"] {
+            margin: 0;
+            transform: scale(1.2);
+        }
+        
+        .content-container-no-image input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 1200px) {
+            .image-container img {
+                max-width: 700px !important;
+                max-height: 500px !important;
+            }
+            .content-container {
+                right: 80px;
+                top: 60px;
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .image-container img {
+                max-width: 600px !important;
+                max-height: 450px !important;
+            }
+            .content-container {
+                right: 40px;
+                top: 40px;
+                width: 280px;
+            }
+        }
+        
+        @media (max-width: 850px) {
+            .image-container img {
+                max-width: 500px !important;
+                max-height: 375px !important;
+            }
+            .content-container {
+                right: 20px;
+                top: 20px;
+                width: 250px;
+            }
+        }
+        
+        @media (max-width: 770px) {
+            .question-with-image {
+                flex-direction: column;
+                gap: 20px;
+                position: relative;
+            }
+            
+            .image-container {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .image-container img {
+                max-width: 100% !important;
+                max-height: 300px !important;
+                display: block;
+                margin: 0 auto;
+            }
+            
+            .content-container {
+                position: static !important;
+                right: auto !important;
+                top: auto !important;
+                width: 100% !important;
+                margin-top: 20px;
+                background-color: rgba(255, 255, 255, 0.98);
+                box-shadow: none;
+                backdrop-filter: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content-container {
+                padding: 15px;
+                width: 100%;
+            }
+            
+            .content-container .answer {
+                padding: 10px 12px;
+            }
+            
+            .content-container .answer label {
+                font-size: 14px;
+            }
+        }
+        
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease-out;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
+            background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 50%, #ff8c42 100%);
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
             text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
         }
-        .close {
-            color: #aaa;
-            float: right;
+        
+        @keyframes slideIn {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+        }
+        
+        .modal-title {
+            color: white;
             font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
         }
+        
+        #scoreText {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin: 30px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .close {
+            color: white;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 2;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
         .close:hover {
-            color: black;
+            color: #ff6b35;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
         }
     </style>
-
-    <button id="next-question" class="btn btn-secondary mt-3 equal-width-btn">Question Suivante</button>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -100,7 +475,11 @@
                 showQuestion(currentQuestionIndex);
             }
 
-            nextButton.addEventListener('click', function() {
+            // Add event listener to all next buttons
+            questions.forEach(question => {
+                const nextButton = question.querySelector('#next-question');
+                if (nextButton) {
+                    nextButton.addEventListener('click', function() {
                 clearInterval(timerInterval);
                 const questionId = questions[currentQuestionIndex].dataset.questionId;
                 const question = questions[currentQuestionIndex];
@@ -128,6 +507,8 @@
                 } else {
                     submitQuizResults();
                 }
+                    });
+                }
             });
 
             function showQuestion(index) {
@@ -141,12 +522,14 @@
                     updateTimerDisplay(questions[index]);
                     if (timeLeft <= 0) {
                         clearInterval(timerInterval);
-                        nextButton.click();
+                        const currentNextButton = questions[index].querySelector('#next-question');
+                        if (currentNextButton) currentNextButton.click();
                     }
                 }, 1000);
 
                 if (index === questions.length - 1) {
-                    nextButton.textContent = 'Terminer le Quiz';
+                    const currentNextButton = questions[index].querySelector('#next-question');
+                    if (currentNextButton) currentNextButton.textContent = 'Terminer le Quiz';
                 }
 
                 responseTimes[questionId] = { startTime: startTime };
