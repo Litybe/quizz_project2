@@ -33,7 +33,7 @@ class QuizzScoreCalculatorService
             $totalScore += ($correctAnswerScore * $this->correctAnswerWeight) + ($timeScore * $this->timeWeight);
         }
 
-        return min($totalScore, 100);
+        return round(min($totalScore, 100));
     }
 
     private function calculateCorrectAnswerScore(QuestionDto $questionDto, ?UserResponseDto $responseDto, float $maxScore): float
