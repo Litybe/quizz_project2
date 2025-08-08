@@ -19,15 +19,15 @@ class Tag
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\ManyToMany(targetEntity: Course::class, mappedBy: 'tags')]
-    private Collection $courses;
+    /*#[ORM\ManyToMany(targetEntity: Course::class, mappedBy: 'tags')]
+    private Collection $courses;*/
 
     #[ORM\ManyToMany(targetEntity: Quizz::class, mappedBy: 'tags')]
     private Collection $quizzes;
 
     public function __construct()
     {
-        $this->courses = new ArrayCollection();
+        //$this->courses = new ArrayCollection();
         $this->quizzes = new ArrayCollection();
     }
 
@@ -47,32 +47,32 @@ class Tag
         return $this;
     }
 
-    /**
-     * @return Collection<int, Course>
-     */
-    public function getCourses(): Collection
-    {
-        return $this->courses;
-    }
-
-    public function addCourse(Course $course): static
-    {
-        if (!$this->courses->contains($course)) {
-            $this->courses->add($course);
-            $course->addTag($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCourse(Course $course): static
-    {
-        if ($this->courses->removeElement($course)) {
-            $course->removeTag($this);
-        }
-
-        return $this;
-    }
+    ///**
+    // * @return Collection<int, Course>
+    // */
+    //public function getCourses(): Collection
+    //{
+    //    return $this->courses;
+    //}
+//
+    //public function addCourse(Course $course): static
+    //{
+    //    if (!$this->courses->contains($course)) {
+    //        $this->courses->add($course);
+    //        $course->addTag($this);
+    //    }
+//
+    //    return $this;
+    //}
+//
+    //public function removeCourse(Course $course): static
+    //{
+    //    if ($this->courses->removeElement($course)) {
+    //        $course->removeTag($this);
+    //    }
+//
+    //    return $this;
+    //}
 
     /**
      * @return Collection<int, Quizz>

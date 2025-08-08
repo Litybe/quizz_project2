@@ -1,14 +1,10 @@
 <?php
 
-// src/Controller/AdminUserController.php
 namespace App\Controller;
 
-use App\Entity\Role;
 use App\Entity\User;
-use App\Entity\UserCourseStatus;
 use App\Form\AdminEditUserForm;
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_ADMIN')] // Seuls les administrateurs peuvent accéder à cette page
+#[IsGranted('ROLE_ADMIN')]
 class AdminUserController extends AbstractController
 {
     private LoggerInterface $_logger;

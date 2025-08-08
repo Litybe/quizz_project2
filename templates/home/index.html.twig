@@ -5,20 +5,6 @@
     <h1 class="welcome-message">Bienvenue sur notre plateforme de quiz</h1>
 
     <div class="content-container">
-        <section class="left-section">
-            <h2 class="section-title">Dernier Cours Mis en Ligne</h2>
-            {% if lastCourse %}
-                <a href="{{ path('app_course_show', {'id': lastCourse.id}) }}" style="text-decoration: none; color: inherit;">
-                    <div class="quiz-card">
-                        <h3>{{ lastCourse.title }}</h3>
-                        <p>{{ lastCourse.description }}</p>
-                    </div>
-                </a>
-            {% else %}
-                <p>Aucun cours disponible pour le moment.</p>
-            {% endif %}
-        </section>
-
         <section class="right-section">
             <h2 class="section-title">Dernier Quiz Mis en Ligne</h2>
             {% if lastQuizz %}

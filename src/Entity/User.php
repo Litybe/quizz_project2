@@ -51,18 +51,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: UserQuizzStatus::class, mappedBy: 'User')]
     private Collection $UserQuizzStatuses;
 
-    /**
-     * @var Collection<int, UserCourseStatus>
-     */
-    #[ORM\OneToMany(targetEntity: UserCourseStatus::class, mappedBy: 'user')]
-    private Collection $UserCourseStatuses;
+    ///**
+    // * @var Collection<int, UserCourseStatus>
+    // */
+    //#[ORM\OneToMany(targetEntity: UserCourseStatus::class, mappedBy: 'user')]
+    //private Collection $UserCourseStatuses;
 
 
     public function __construct()
     {
         $this->Scores = new ArrayCollection();
         $this->UserQuizzStatuses = new ArrayCollection();
-        $this->UserCourseStatuses = new ArrayCollection();
+        //$this->UserCourseStatuses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -222,9 +222,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, UserCourseStatus>
+    // * @return Collection<int, UserCourseStatus>
      */
-    public function getUserCourseStatuses(): Collection
+    /*public function getUserCourseStatuses(): Collection
     {
         return $this->UserCourseStatuses;
     }
@@ -249,5 +249,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
-    }
+    }*/
 }
