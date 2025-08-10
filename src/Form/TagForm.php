@@ -23,7 +23,7 @@ class TagForm extends AbstractType
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Enregistrer',
-                'attr' => ['class' => 'btn btn-primary mt-3 equal-width-btn']
+                'attr' => ['class' => 'btn-save']
             ]);
     }
 

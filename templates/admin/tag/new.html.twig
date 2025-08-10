@@ -3,25 +3,414 @@
 {% block title %}Nouveau Tag{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Créer un nouveau tag</h1>
+    <div class="admin-container">
+        <!-- Header Section -->
+        <div class="admin-header">
+            <div class="header-content">
+                <h1 class="admin-title">
+                    <i class="fas fa-plus"></i>
+                    Nouveau Tag
+                </h1>
+                <p class="admin-subtitle">Créez un nouveau tag pour organiser vos quiz</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ path('admin_tag_index') }}" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Retour à la liste</span>
+                </a>
+            </div>
+        </div>
 
-        <div class="card">
-            <div class="card-body">
-                {{ form_start(form) }}
-                <div class="mb-3">
-                    {{ form_label(form.name) }}
-                    {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.name) }}
+        <!-- Flash Messages -->
+        {% for message in app.flashes('success') %}
+            <div class="flash-message success">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="flash-message error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        {% endfor %}
+
+        <!-- Content Section -->
+        <div class="admin-content">
+            <div class="create-form-container">
+                <div class="form-header">
+                    <div class="creation-preview">
+                        <div class="tag-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="creation-info">
+                            <h3>Création d'un nouveau tag</h3>
+                            <p>Remplissez le formulaire ci-dessous pour créer votre tag</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="d-flex justify-content-between">
-                    <a href="{{ path('admin_tag_index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Retour à la liste
-                    </a>
+                <div class="form-content">
+                    {{ form_start(form) }}
+                    <div class="form-group">
+                        {{ form_label(form.name, 'Nom du tag', {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.name, {
+                            'attr': {
+                                'class': 'form-input',
+                                'placeholder': 'Entrez le nom du nouveau tag'
+                            }
+                        }) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="form-actions">
+                        {{ form_end(form) }}
+                        <a href="{{ path('admin_tag_index') }}" class="btn-cancel">
+                            <i class="fas fa-times"></i>
+                            <span>Annuler</span>
+                        </a>
+                    </div>
+                    
                 </div>
-                {{ form_end(form) }}
             </div>
         </div>
     </div>
+
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .admin-header {
+            background: linear-gradient(135deg, #2a2a2a 0%, #383838 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 119, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF7700, #FF9500);
+        }
+
+        .header-content h1.admin-title {
+            color: #FF7700;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-subtitle {
+            color: #b0b0b0;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInDown 0.5s ease;
+            position: relative;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .flash-message.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-left: 4px solid #155724;
+        }
+
+        .flash-message.error {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+            border-left: 4px solid #721c24;
+        }
+
+        .flash-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            margin-left: auto;
+        }
+
+        .flash-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Create Form Container */
+        .create-form-container {
+            background: linear-gradient(135deg, #383838 0%, #2a2a2a 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 119, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #2a2a2a 0%, #383838 100%);
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 119, 0, 0.2);
+        }
+
+        .creation-preview {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .tag-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .creation-info h3 {
+            color: #e0e0e0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .creation-info p {
+            color: #b0b0b0;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .form-content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #2a2a2a 0%, #383838 100%);
+            border: 2px solid rgba(255, 119, 0, 0.2);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FF7700;
+            box-shadow: 0 0 0 3px rgba(255, 119, 0, 0.1);
+            background: linear-gradient(135deg, #383838 0%, #2a2a2a 100%);
+        }
+
+        .form-input::placeholder {
+            color: #888;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 119, 0, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 119, 0, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Form Errors */
+        .form-group .invalid-feedback {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .form-input.is-invalid {
+            border-color: #e74c3c;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .header-content h1.admin-title {
+                font-size: 2rem;
+            }
+
+            .form-header {
+                padding: 1.5rem;
+            }
+
+            .form-content {
+                padding: 1.5rem;
+            }
+
+            .creation-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-create,
+            .btn-cancel {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-header {
+                padding: 1.5rem;
+            }
+
+            .form-header {
+                padding: 1rem;
+            }
+
+            .form-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block stylesheets %}
 {% endblock %}

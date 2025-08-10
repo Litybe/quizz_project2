@@ -3,72 +3,444 @@
 {% block title %}Administration - Tags{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">Gestion des tags</h1>
+    <div class="admin-container">
+        <!-- Header Section -->
+        <div class="admin-header">
+            <div class="header-content">
+                <h1 class="admin-title">
+                    <i class="fas fa-tags"></i>
+                    Gestion des Tags
+                </h1>
+                <p class="admin-subtitle">Administrez et organisez vos tags de quiz</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ path('admin_tag_new') }}" class="btn-create">
+                    <i class="fas fa-plus"></i>
+                    <span>Nouveau Tag</span>
+                </a>
+            </div>
+        </div>
 
+        <!-- Flash Messages -->
         {% for message in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ message }}
+            <div class="flash-message success">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         {% endfor %}
 
         {% for message in app.flashes('error') %}
-            <div class="alert alert-danger">
-                {{ message }}
+            <div class="flash-message error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ message }}</span>
+                <button class="flash-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         {% endfor %}
 
-        <div class="mb-4">
-            <a href="{{ path('admin_tag_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Créer un nouveau tag
-            </a>
-        </div>
-
-        {% if tags|length > 0 %}
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+        <!-- Content Section -->
+        <div class="admin-content">
+            {% if tags|length > 0 %}
+                <div class="tags-grid">
                     {% for tag in tags %}
-                        <tr>
-                            <td>{{ tag.id }}</td>
-                            <td>{{ tag.name }}</td>
-                            
-                            <td>
-                                <a href="{{ path('admin_tag_edit', {'id': tag.id}) }}" class="btn btn-sm btn-warning equal-width-btn">
-                                    <i class="fas fa-edit"></i> Modifier
+                        <div class="tag-card" data-tag-id="{{ tag.id }}">
+                            <div class="tag-header">
+                                <div class="tag-icon">
+                                    <i class="fas fa-tag"></i>
+                                </div>
+                                <div class="tag-info">
+                                    <h3 class="tag-name">{{ tag.name }}</h3>
+                                    <span class="tag-id">#{{ tag.id }}</span>
+                                </div>
+                            </div>
+                            <div class="tag-actions">
+                                <a href="{{ path('admin_tag_edit', {'id': tag.id}) }}" class="btn-edit" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Modifier</span>
                                 </a>
-                                
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="alert alert-info">
-                Aucun tag trouvé. <a href="{{ path('admin_tag_new') }}">Créer un nouveau tag</a>.
-            </div>
-        {% endif %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Aucun tag trouvé</h3>
+                    <p>Commencez par créer votre premier tag pour organiser vos quiz</p>
+                    <a href="{{ path('admin_tag_new') }}" class="btn-create-empty">
+                        <i class="fas fa-plus"></i>
+                        Créer un tag
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div>
+
     <style>
-        .disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
         }
-        .equal-width-btn {
-            min-width: 100px; /* Définissez la largeur minimale souhaitée pour les boutons */
-            min-height: 44px;
+
+        /* Header Styles */
+        .admin-header {
+            background: linear-gradient(135deg, #2a2a2a 0%, #383838 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 119, 0, 0.2);
+            position: relative;
+            overflow: hidden;
         }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF7700, #FF9500);
+        }
+
+        .header-content h1.admin-title {
+            color: #FF7700;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-subtitle {
+            color: #b0b0b0;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 119, 0, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 119, 0, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInDown 0.5s ease;
+            position: relative;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .flash-message.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-left: 4px solid #155724;
+        }
+
+        .flash-message.error {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+            border-left: 4px solid #721c24;
+        }
+
+        .flash-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            margin-left: auto;
+        }
+
+        .flash-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Tags Grid */
+        .tags-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .tag-card {
+            background: linear-gradient(135deg, #383838 0%, #2a2a2a 100%);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 119, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .tag-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF7700, #FF9500);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tag-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 119, 0, 0.3);
+        }
+
+        .tag-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .tag-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .tag-info {
+            flex: 1;
+        }
+
+        .tag-name {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .tag-id {
+            color: #888;
+            font-size: 0.8rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .tag-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+            color: #212529;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+            color: #212529;
+            text-decoration: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #383838 0%, #2a2a2a 100%);
+            border-radius: 20px;
+            border: 2px dashed rgba(255, 119, 0, 0.3);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .empty-state h3 {
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: #888;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-create-empty {
+            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 119, 0, 0.3);
+        }
+
+        .btn-create-empty:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 119, 0, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .tags-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.875rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .tags-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.875rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .header-content h1.admin-title {
+                font-size: 2rem;
+            }
+
+            .tags-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .tag-card {
+                padding: 0.875rem;
+            }
+
+            .tag-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tags-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+
+        /* Loading Animation */
+        .tag-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tag-card:nth-child(1) { animation-delay: 0.1s; }
+        .tag-card:nth-child(2) { animation-delay: 0.2s; }
+        .tag-card:nth-child(3) { animation-delay: 0.3s; }
+        .tag-card:nth-child(4) { animation-delay: 0.4s; }
+        .tag-card:nth-child(5) { animation-delay: 0.5s; }
+        .tag-card:nth-child(6) { animation-delay: 0.6s; }
     </style>
 {% endblock %}
 
 {% block stylesheets %}
-
 {% endblock %}
