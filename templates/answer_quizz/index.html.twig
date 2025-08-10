@@ -450,7 +450,7 @@
                     .then(response => response.json())
                     .then(data => {
                         console.log('Success:', data);
-                        showScoreModal(data.score, data.title);
+                        showScoreModal(data.score, data.title, data.isGuest);
                     })
                     .catch((error) => {
                         console.error('Error:', error);

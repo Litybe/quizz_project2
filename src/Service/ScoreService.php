@@ -21,21 +21,25 @@ class ScoreService
         $this->entityManager = $entityManager;
     }
 
-    public function calculateAndSaveScore($quizzId, $content, SessionInterface $session, User $user)
+    public function calculateAndSaveScore($quizzId, $content, SessionInterface $session, ?User $user = null)
     {
         $answerContent = $content['answers'];
         $timeContent = $content['responseTimes'];
         $title = "Bravo!";
+        $isGuest = $user === null;
 
-        $userQuizzStatus = $this->entityManager->getRepository(UserQuizzStatus::class)->findOneBy([
-            'User' => $user->getId(),
-            'Quizz' => $quizzId
-        ]);
+        // Si c'est un utilisateur connecté, récupérer les données existantes
+        if (!$isGuest) {
+            $userQuizzStatus = $this->entityManager->getRepository(UserQuizzStatus::class)->findOneBy([
+                'User' => $user->getId(),
+                'Quizz' => $quizzId
+            ]);
 
-        $existingScore = $this->entityManager->getRepository(Score::class)->findOneBy([
-            'IdUser' => $user->getId(),
-            'IdQuizz' => $quizzId
-        ]);
+            $existingScore = $this->entityManager->getRepository(Score::class)->findOneBy([
+                'IdUser' => $user->getId(),
+                'IdQuizz' => $quizzId
+            ]);
+        }
 
         $quizz = $this->entityManager->getRepository(Quizz::class)->find($quizzId);
         $questions = $quizz->getQuestions();
@@ -88,32 +92,124 @@ class ScoreService
         $quizScoreCalculatorService = new QuizzScoreCalculatorService($scoreWeightsDTO);
         $newScore = $quizScoreCalculatorService->calculateScore($questionDTOs, $userResponseDtos);
 
-        if ($existingScore) {
-            if ($newScore > $existingScore->getUserScore()) {
-                $title = "Best Score, BG le S!";
-                $existingScore->setUserScore($newScore);
-                $this->entityManager->persist($existingScore);
+        // Si c'est un utilisateur connecté, sauvegarder le score
+        if (!$isGuest) {
+            if ($existingScore) {
+                if ($newScore > $existingScore->getUserScore()) {
+                    $existingScore->setUserScore($newScore);
+                    $this->entityManager->persist($existingScore);
+                }
             } else {
-                $title = "Même pas capable de faire mieux!";
+                $scoreData = new Score($quizz, $user, $newScore);
+                $this->entityManager->persist($scoreData);
             }
+
+            if (!$userQuizzStatus) {
+                $userQuizzStatus = new UserQuizzStatus();
+                $userQuizzStatus->setUser($user);
+                $userQuizzStatus->setQuizz($quizz);
+            }
+
+            $userQuizzStatus->setIsDone(true);
+            $this->entityManager->persist($userQuizzStatus);
+            $this->entityManager->flush();
         } else {
-            $scoreData = new Score($quizz, $user, $newScore);
-            $this->entityManager->persist($scoreData);
+            // Pour les utilisateurs non connectés, sauvegarder temporairement en session
+            $tempScoreData = [
+                'quizzId' => $quizzId,
+                'score' => $newScore,
+                'answers' => $answerContent,
+                'responseTimes' => $timeContent,
+                'timestamp' => time()
+            ];
+            $session->set('temp_quiz_score', $tempScoreData);
+            
+            $title = "Score temporaire - Connectez-vous pour sauvegarder !";
         }
-
-        if (!$userQuizzStatus) {
-            $userQuizzStatus = new UserQuizzStatus();
-            $userQuizzStatus->setUser($user);
-            $userQuizzStatus->setQuizz($quizz);
-        }
-
-        $userQuizzStatus->setIsDone(true);
-        $this->entityManager->persist($userQuizzStatus);
-        $this->entityManager->flush();
 
         return [
             'score' => $newScore,
-            'title' => $title
+            'title' => $title,
+            'isGuest' => $isGuest,
+            'quizzId' => $quizzId
         ];
+    }
+
+    /**
+     * Récupère et sauvegarde le score temporaire d'un utilisateur non connecté
+     */
+    public function saveTemporaryScore(SessionInterface $session, User $user): ?array
+    {
+        $tempScoreData = $session->get('temp_quiz_score');
+        
+        if (!$tempScoreData) {
+            return null; // Aucun score temporaire
+        }
+
+        // Vérifier que le score n'est pas trop ancien (24h max)
+        if (time() - $tempScoreData['timestamp'] > 86400) {
+            $session->remove('temp_quiz_score');
+            return null; // Score trop ancien
+        }
+
+        try {
+            // Sauvegarder le score avec l'utilisateur maintenant connecté
+            $quizz = $this->entityManager->getRepository(Quizz::class)->find($tempScoreData['quizzId']);
+            
+            if (!$quizz) {
+                $session->remove('temp_quiz_score');
+                return null; // Quiz introuvable
+            }
+
+            // Vérifier si l'utilisateur a déjà un score pour ce quiz
+            $existingScore = $this->entityManager->getRepository(Score::class)->findOneBy([
+                'IdUser' => $user->getId(),
+                'IdQuizz' => $tempScoreData['quizzId']
+            ]);
+
+            if ($existingScore) {
+                // Mettre à jour le score si le nouveau est meilleur
+                if ($tempScoreData['score'] > $existingScore->getUserScore()) {
+                    $existingScore->setUserScore($tempScoreData['score']);
+                    $this->entityManager->persist($existingScore);
+                }
+                $title = "Score temporaire sauvegardé !";
+            } else {
+                // Créer un nouveau score
+                $scoreData = new Score($quizz, $user, $tempScoreData['score']);
+                $this->entityManager->persist($scoreData);
+                $title = "Score temporaire sauvegardé !";
+            }
+
+            // Mettre à jour le statut du quiz
+            $userQuizzStatus = $this->entityManager->getRepository(UserQuizzStatus::class)->findOneBy([
+                'User' => $user->getId(),
+                'Quizz' => $tempScoreData['quizzId']
+            ]);
+
+            if (!$userQuizzStatus) {
+                $userQuizzStatus = new UserQuizzStatus();
+                $userQuizzStatus->setUser($user);
+                $userQuizzStatus->setQuizz($quizz);
+            }
+
+            $userQuizzStatus->setIsDone(true);
+            $this->entityManager->persist($userQuizzStatus);
+            $this->entityManager->flush();
+
+            // Nettoyer la session
+            $session->remove('temp_quiz_score');
+
+            return [
+                'score' => $tempScoreData['score'],
+                'title' => $title,
+                'quizzId' => $tempScoreData['quizzId']
+            ];
+
+        } catch (\Exception $e) {
+            // En cas d'erreur, nettoyer la session
+            $session->remove('temp_quiz_score');
+            return null;
+        }
     }
 }

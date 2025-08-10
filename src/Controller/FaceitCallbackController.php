@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\ScoreService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -17,9 +18,12 @@ class FaceitCallbackController extends AbstractController
 {
 
     private LoggerInterface $logger;
-    function __construct(LoggerInterface $logger)
+    private ScoreService $scoreService;
+
+    function __construct(LoggerInterface $logger, ScoreService $scoreService)
     {
         $this->logger = $logger;
+        $this->scoreService = $scoreService;
     }
 
     /**
@@ -76,6 +80,15 @@ class FaceitCallbackController extends AbstractController
             $token = new UsernamePasswordToken($user,  'main', $user->getRoles());
             $this->container->get('security.token_storage')->setToken($token);
             $session->set('_security_main', serialize($token));
+
+            // Récupérer et sauvegarder le score temporaire s'il existe
+            $tempScoreResult = $this->scoreService->saveTemporaryScore($session, $user);
+            
+            if ($tempScoreResult) {
+                // Stocker les informations du score temporaire pour affichage
+                $session->set('temp_score_saved', $tempScoreResult);
+                $this->logger->info("Score temporaire sauvegardé pour l'utilisateur: " . $user->getPseudo());
+            }
 
             return $this->redirectToRoute('profile');
         } else {

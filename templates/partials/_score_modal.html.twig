@@ -14,6 +14,40 @@
                 <div class="score-label">Votre Score</div>
             </div>
             <div id="scoreText" class="score-message">Félicitations !</div>
+            
+            {# Section d'invitation à la connexion pour les utilisateurs non connectés #}
+            <div id="guestLoginSection" class="guest-login-section" style="display: none;">
+                <div class="login-invitation">
+                    <div class="login-icon">🔐</div>
+                    <h3>Connectez-vous pour sauvegarder votre score !</h3>
+                    <p>Votre score actuel est temporaire. Créez un compte ou connectez-vous pour :</p>
+                    <ul class="benefits-list">
+                        <li>✅ Sauvegarder vos scores</li>
+                        <li>🏆 Apparaître dans les classements</li>
+                        <li>📊 Suivre vos progrès</li>
+                        <li>🎯 Défier vos amis</li>
+                    </ul>
+                    <div class="login-actions">
+                        <a href="{{ path('faceit_login') }}" class="btn-login">🔑 Se connecter avec Faceit</a>
+                        <a href="{{ path('app_home') }}" class="btn-register">📝 En savoir plus</a>
+                    </div>
+                </div>
+            </div>
+            
+            {# Section de confirmation de sauvegarde du score temporaire #}
+            <div id="tempScoreSavedSection" class="temp-score-saved-section" style="display: none;">
+                <div class="score-saved-confirmation">
+                    <div class="saved-icon">🎉</div>
+                    <h3>Score sauvegardé avec succès !</h3>
+                    <p>Votre score temporaire a été sauvegardé dans votre profil.</p>
+                    <div class="saved-score-info">
+                        <span class="saved-score-label">Score sauvegardé :</span>
+                        <span id="savedScoreNumber" class="saved-score-value">0</span>
+                        <span class="saved-score-max">/100</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="score-actions">
                 <button class="btn-retry" onclick="window.retryQuiz()" type="button">🔄 Réessayer</button>
                 <button class="btn-home" onclick="window.goHome()" type="button">🏠 Retour à l'accueil</button>
@@ -207,6 +241,152 @@
         transform: none;
     }
     
+    /* Styles pour la section d'invitation à la connexion */
+    .guest-login-section {
+        margin: 25px 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        border-radius: 15px;
+        border: 2px solid #ff9800;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .guest-login-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #ff9800, #ffc107, #ff9800);
+        animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .login-invitation {
+        text-align: center;
+    }
+    
+    .login-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+    
+    .login-invitation h3 {
+        color: #e65100;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-invitation p {
+        color: #795548;
+        font-size: 16px;
+        margin: 0 0 20px 0;
+        line-height: 1.4;
+    }
+    
+    .benefits-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 25px 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .benefits-list li {
+        color: #5d4037;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        border-left: 3px solid #ff9800;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .login-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-login, .btn-register {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 140px;
+        justify-content: center;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+    
+    .btn-login:active, .btn-register:active {
+        transform: translateY(0);
+    }
+    
+    /* Responsive design pour la section de connexion */
+    @media (max-width: 600px) {
+        .benefits-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .login-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-login, .btn-register {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+    
     .close {
         color: white;
         position: absolute;
@@ -229,14 +409,89 @@
         background: rgba(255, 255, 255, 0.3);
         transform: scale(1.1);
     }
+
+    /* Styles pour la section de confirmation de sauvegarde */
+    .temp-score-saved-section {
+        margin: 25px 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #e8f5e9 0%, #dcedc8 100%);
+        border-radius: 15px;
+        border: 2px solid #4caf50;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .temp-score-saved-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #4caf50, #66bb6a, #4caf50);
+        animation: shimmer 2s infinite;
+    }
+
+    .score-saved-confirmation {
+        text-align: center;
+    }
+
+    .saved-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        animation: bounce 2s infinite;
+    }
+
+    .score-saved-confirmation h3 {
+        color: #2e7d32;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-saved-confirmation p {
+        color: #558b2f;
+        font-size: 16px;
+        margin: 0 0 20px 0;
+        line-height: 1.4;
+    }
+
+    .saved-score-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .saved-score-label {
+        color: #2e7d32;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .saved-score-value {
+        color: #2e7d32;
+        font-size: 24px;
+        font-weight: 800;
+    }
+
+    .saved-score-max {
+        color: rgba(46, 125, 50, 0.8);
+        font-size: 16px;
+        font-weight: 500;
+    }
 </style>
 
 <script>
     // Fonctions pour le scoreModal - Rendre globales pour accès depuis le fichier principal
-    window.showScoreModal = function(score, title) {
+    window.showScoreModal = function(score, title, isGuest = false) {
         const modal = document.getElementById('scoreModal');
         const scoreNumber = document.getElementById('scoreNumber');
         const scoreText = document.getElementById('scoreText');
+        const guestLoginSection = document.getElementById('guestLoginSection');
+        const tempScoreSavedSection = document.getElementById('tempScoreSavedSection');
         
         // Afficher le score dans le cercle
         scoreNumber.textContent = score;
@@ -250,6 +505,16 @@
             scoreText.textContent = "📚 Pas mal ! Continuez à vous améliorer !";
         } else {
             scoreText.textContent = "💪 Courage ! La pratique rend parfait !";
+        }
+        
+        // Afficher ou masquer la section d'invitation à la connexion
+        if (guestLoginSection) {
+            guestLoginSection.style.display = isGuest ? 'block' : 'none';
+        }
+
+        // Afficher ou masquer la section de confirmation de sauvegarde
+        if (tempScoreSavedSection) {
+            tempScoreSavedSection.style.display = 'none';
         }
         
         modal.style.display = 'block';
@@ -303,5 +568,50 @@
         setTimeout(() => {
             window.location.href = "{{ path('app_home') }}";
         }, 300);
+    };
+
+    // Fonction pour afficher la confirmation de sauvegarde du score temporaire
+    window.showTempScoreSaved = function(score) {
+        const modal = document.getElementById('scoreModal');
+        const scoreNumber = document.getElementById('scoreNumber');
+        const scoreText = document.getElementById('scoreText');
+        const guestLoginSection = document.getElementById('guestLoginSection');
+        const tempScoreSavedSection = document.getElementById('tempScoreSavedSection');
+        const savedScoreNumber = document.getElementById('savedScoreNumber');
+        
+        // Afficher le score dans le cercle
+        scoreNumber.textContent = score;
+        
+        // Message de confirmation
+        scoreText.textContent = "🎉 Score temporaire sauvegardé !";
+        
+        // Afficher le score sauvegardé
+        if (savedScoreNumber) {
+            savedScoreNumber.textContent = score;
+        }
+        
+        // Masquer les sections d'invitation et afficher la confirmation
+        if (guestLoginSection) {
+            guestLoginSection.style.display = 'none';
+        }
+        if (tempScoreSavedSection) {
+            tempScoreSavedSection.style.display = 'block';
+        }
+        
+        modal.style.display = 'block';
+
+        // Gestionnaire pour le bouton de fermeture
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = 'none';
+            window.location.href = "{{ path('selectAll_quizz') }}";
+        };
+
+        // Gestionnaire pour fermer en cliquant à l'extérieur
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                window.location.href = "{{ path('selectAll_quizz') }}";
+            }
+        };
     };
 </script>

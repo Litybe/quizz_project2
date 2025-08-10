@@ -47,13 +47,14 @@ final class AnswerQuizzController extends AbstractController
         try {
             $quizzId = $session->get('quizz');
             $content = json_decode($request->getContent(), true);
-            /** @var User $user */
+            /** @var User|null $user */
             $user = $this->getUser();
 
             if (!$quizzId) {
                 throw $this->createNotFoundException('Quiz not found in session.');
             }
 
+            // Le ScoreService peut maintenant gérer les utilisateurs null (non connectés)
             $result = $this->scoreService->calculateAndSaveScore($quizzId, $content, $session, $user);
 
             return new JsonResponse($result);
