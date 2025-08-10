@@ -1,4 +1,5 @@
 /* Styles partagés pour les cartes de quiz */
+
 .quiz-card {
     background: linear-gradient(145deg, #ffffff, #f0f0f0);
     border-radius: 10px;
@@ -10,9 +11,6 @@
     border: 1px solid #ddd;
     position: relative;
     z-index: 1;
-    /* TEST - Style très visible */
-    border: 5px solid red !important;
-    background: yellow !important;
 }
 
 .quiz-card:hover {
@@ -93,9 +91,4 @@
     white-space: nowrap;
     margin-right: 5px;
     display: inline-block;
-}
-
-/* Vos styles existants */
-body {
-    background-color: skyblue;
 }

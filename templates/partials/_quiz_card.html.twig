@@ -1,0 +1,164 @@
+{# Template partiel pour afficher une carte de quiz #}
+<div class="quiz-card" {% if quiz.id is defined and app.request.get('_route') == 'selectAll_quizz' %}onclick="selectQuiz({{ quiz.id }})"{% endif %}>
+    <h3>{{ quiz.name }}</h3>
+    <p>{{ quiz.description|default('Pas de description disponible') }}</p>
+    <div class="quiz-tags">
+        {% for tag in quiz.tags %}
+            <span class="tag-badge">{{ tag.name }}</span>
+        {% endfor %}
+    </div>
+    
+    {% if app.user and userQuizzStatuses[quiz.id] is defined and userQuizzStatuses[quiz.id].isDone %}
+        <div class="quiz-done">Terminé</div>
+        {% if userScores[quiz.id] is defined %}
+            <div class="quiz-score-container">
+                <div class="quiz-score">Score: {{ userScores[quiz.id] }}/100</div>
+                {% if userRankings[quiz.id] is defined %}
+                    <div class="quiz-ranking">Classé {{ userRankings[quiz.id] }}e</div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="quiz-notdone">Pas encore terminé</div>
+    {% endif %}
+    {% if bestScores[quiz.id] is defined %}
+        <div class="quiz-best-score">Meilleur score: {{ bestScores[quiz.id] }}/100</div>
+    {% endif %}
+</div>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 28px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .left-section, .right-section {
+            flex: 1;
+            margin: 0 10px; /* Ajoute une marge pour éviter que les sections ne se touchent */
+        }
+
+        .section-title {
+            color: #ff961e;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styles partagés pour les cartes de quiz */
+        .quiz-card {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .quiz-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            z-index: 10;
+        }
+        
+        .quiz-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-card p {
+            color: #666;
+        }
+        
+        .quiz-done {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .quiz-notdone {
+            background-color: #af4c4c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .quiz-score-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .quiz-score {
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .quiz-ranking {
+            background-color: #6f42c1;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+        }
+        
+        .quiz-best-score {
+            background-color: #ffc107;
+            color: #212529;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        .tag-badge {
+            background-color: #FF7700;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            margin-right: 5px;
+            display: inline-block;
+        }
+        
+        /* Vos styles existants */
+        body {
+            background-color: skyblue;
+        }
+
+        
+    </style>

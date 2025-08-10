@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block stylesheets %}
-
+    {{ parent() }}
 {% endblock %}
 
 {% block body %}
@@ -20,19 +20,14 @@
 
     <div class="quiz-grid" id="quizGrid">
         {% for quiz in quizzes %}
-            <div class="quiz-card" onclick="selectQuiz({{ quiz.id }})">
-                <h3>{{ quiz.name }}</h3>
-                <p>{{ quiz.description|default('Pas de description disponible') }}</p>
-                <div class="quiz-tags">
-                    {% for tag in quiz.tags %}
-                        <span class="tag-badge">{{ tag.name }}</span>
-                    {% endfor %}
-                </div>
-                {% if app.user and userQuizzStatuses[quiz.id] is defined and userQuizzStatuses[quiz.id].isDone %}
-                    <div class="quiz-done">Terminé</div>
-                {% else %}
-                    <div class="quiz-notdone">Pas encore terminé</div>
-                {% endif %}
+            <div class="quiz-card-wrapper">
+                {% include 'partials/_quiz_card.html.twig' with {
+                    quiz: quiz,
+                    userQuizzStatuses: userQuizzStatuses,
+                    userScores: userScores,
+                    userRankings: userRankings,
+                    bestScores: bestScores
+                } %}
             </div>
         {% endfor %}
     </div>
@@ -40,131 +35,127 @@
     <div class="pagination">
         {% if quizzes.getTotalItemCount > 10 %}
             {% if page > 1 %}
-                <a href="{{ path('selectAll_quizz', {'page': page - 1}) }}">&laquo; Précédent</a>
+                <a href="{{ path('selectAll_quizz', {'page': page - 1}) }}" class="pagination-link">&laquo; Précédent</a>
             {% endif %}
 
             {% for p in 1..totalPages %}
-                <a href="{{ path('selectAll_quizz', {'page': p}) }}" class="{% if p == page %}active{% endif %}">{{ p }}</a>
+                <a href="{{ path('selectAll_quizz', {'page': p}) }}" class="pagination-link {% if p == page %}active{% endif %}">{{ p }}</a>
             {% endfor %}
 
             {% if page < totalPages %}
-                <a href="{{ path('selectAll_quizz', {'page': page + 1}) }}">Suivant &raquo;</a>
+                <a href="{{ path('selectAll_quizz', {'page': page + 1}) }}" class="pagination-link">Suivant &raquo;</a>
             {% endif %}
         {% endif %}
     </div>
 
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: bold;
+            font-size: 28px;
+        }
+
+        .section-title {
+            color: #ff961e;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
         .quiz-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(5, 1fr);
             gap: 20px;
-            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+            padding: 0 20px;
         }
+
+        .quiz-card-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
         .quiz-card {
-            background: linear-gradient(145deg, #ffffff, #f0f0f0);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            position: relative;
-            z-index: 1;
+            width: 100%;
+            max-width: 220px;
+            margin: 0;
         }
-        .quiz-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            z-index: 10;
-        }
+
         .quiz-card h3 {
-            color: #333;
-            margin-bottom: 10px;
+            color: #2c3e50;
         }
-        .quiz-card p {
-            color: #666;
-        }
-        .quiz-done {
-            background-color: #4CAF50;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: inline-block;
+
+        .quiz-tags {
             margin-top: 10px;
         }
-        .quiz-notdone {
-            background-color: #af4c4c;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .search-container {
-            margin: 20px;
-            text-align: center;
-        }
-        .search-container input {
-            padding: 10px;
-            width: 300px;
-            border-radius: 20px;
-            border: 1px solid #ccc;
-        }
+
         .pagination {
             display: flex;
             justify-content: center;
-            margin-top: 20px;
-        }
-        .pagination a {
-            color: #333;
-            padding: 8px 16px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            margin: 0 4px;
-            border-radius: 4px;
-        }
-        .pagination a.active {
-            background-color: #FF7700;
-            color: white;
-            border: 1px solid #FF7700;
-        }
-        .pagination a:hover:not(.active) {
-            background-color: #ddd;
-        }
-        .tag-badge {
-            background-color: #FF7700;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            white-space: nowrap;
-        }
-        .tag-filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            align-items: center;
             gap: 10px;
-            margin: 20px 0;
+            margin-top: 30px;
+            flex-wrap: wrap;
         }
-        .tag-filter {
-            display: inline-block;
-            padding: 8px 15px;
-            background-color: #f8f9fa;
-            border-radius: 20px;
+
+        .pagination-link {
+            padding: 8px 12px;
             text-decoration: none;
-            color: #333;
+            color: #2c3e50;
             border: 1px solid #ddd;
-            transition: all 0.2s;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
-        .tag-filter:hover {
-            background-color: #e9ecef;
-            color: #FF7700;
+
+        .pagination-link:hover {
+            background-color: #f8f9fa;
+            border-color: #ff961e;
         }
-        .tag-filter.active {
-            background-color: #FF7700;
+
+        .pagination-link.active {
+            background-color: #ff961e;
             color: white;
-            border-color: #FF7700;
+            border-color: #ff961e;
+        }
+
+        /* Responsive design pour les petits écrans */
+        @media (max-width: 1200px) {
+            .quiz-grid {
+                grid-template-columns: repeat(4, 1fr);
+                max-width: 1000px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .quiz-grid {
+                grid-template-columns: repeat(3, 1fr);
+                max-width: 800px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 0 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .quiz-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
         }
     </style>
 
@@ -178,7 +169,7 @@
             let input = document.getElementById('searchInput');
             let filter = input.value.toUpperCase();
             let grid = document.getElementById('quizGrid');
-            let cards = grid.getElementsByClassName('quiz-card');
+            let cards = grid.getElementsByClassName('quiz-card-wrapper');
 
             for (let i = 0; i < cards.length; i++) {
                 let title = cards[i].getElementsByTagName('h3')[0];

@@ -5,7 +5,9 @@ namespace App\Service;
 use App\Entity\Quizz;
 use App\Entity\Tag;
 use App\Repository\QuizzRepository;
+use App\Repository\ScoreRepository;
 use App\Repository\UserQuizzStatusRepository;
+use App\Service\QuizDisplayService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,18 +18,24 @@ class QuizzService
     private $entityManager;
     private $quizzRepository;
     private $userQuizzStatusRepository;
+    private $scoreRepository;
     private $paginator;
+    private $quizDisplayService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         QuizzRepository $quizzRepository,
         UserQuizzStatusRepository $userQuizzStatusRepository,
-        PaginatorInterface $paginator
+        ScoreRepository $scoreRepository,
+        PaginatorInterface $paginator,
+        QuizDisplayService $quizDisplayService
     ) {
         $this->entityManager = $entityManager;
         $this->quizzRepository = $quizzRepository;
         $this->userQuizzStatusRepository = $userQuizzStatusRepository;
+        $this->scoreRepository = $scoreRepository;
         $this->paginator = $paginator;
+        $this->quizDisplayService = $quizDisplayService;
     }
 
     public function getPaginatedQuizzes(Request $request, $user)
@@ -48,15 +56,8 @@ class QuizzService
         $page = $request->query->getInt('page', 1);
         $quizzes = $this->paginator->paginate($query, $page, 10);
 
-        // Récupérer les statuts des quiz pour l'utilisateur s'il est connecté
-        $userQuizzStatuses = [];
-        if ($user) {
-            $userQuizzStatuses = $this->userQuizzStatusRepository->findBy(["User" => $user]);
-            $userQuizzStatuses = array_reduce($userQuizzStatuses, function ($carry, $status) {
-                $carry[$status->getQuizz()->getId()] = $status;
-                return $carry;
-            }, []);
-        }
+        // Récupérer les données d'affichage des quiz via le service partagé
+        $quizDisplayData = $this->quizDisplayService->getQuizDisplayData($user);
 
         // Récupérer tous les tags pour le filtre
         $tagRepository = $this->entityManager->getRepository(Tag::class);
@@ -68,7 +69,10 @@ class QuizzService
             'quizzes' => $quizzes,
             'page' => $page,
             'totalPages' => $totalPages,
-            'userQuizzStatuses' => $userQuizzStatuses,
+            'userQuizzStatuses' => $quizDisplayData['userQuizzStatuses'],
+            'userScores' => $quizDisplayData['userScores'],
+            'userRankings' => $quizDisplayData['userRankings'],
+            'bestScores' => $quizDisplayData['bestScores'],
             'tags' => $tags, // Ajoutez les tags au tableau retourné
             'selectedTag' => $selectedTagId // Ajoutez l'ID du tag sélectionné au tableau retourné
         ];
