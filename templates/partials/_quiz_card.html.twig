@@ -22,7 +22,9 @@
         <div class="quiz-notdone">Pas encore terminé</div>
     {% endif %}
     {% if bestScores[quiz.id] is defined %}
-        <div class="quiz-best-score">Meilleur score: {{ bestScores[quiz.id] }}/100</div>
+        {% if not (app.user and userScores[quiz.id] is defined and userScores[quiz.id] == bestScores[quiz.id]) %}
+            <div class="quiz-best-score">Meilleur score: {{ bestScores[quiz.id] }}/100</div>
+        {% endif %}
     {% endif %}
 </div>
 
