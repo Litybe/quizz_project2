@@ -47,7 +47,7 @@ class QuizzScoreCalculatorService
 
     private function calculateTimeScore(QuestionDto $questionDto, ?UserResponseDto $responseDto, float $maxScore): float
     {
-        if ($responseDto === null) {
+        if ($responseDto === null || !$responseDto->isCorrect()) {
             return 0;
         }
 
