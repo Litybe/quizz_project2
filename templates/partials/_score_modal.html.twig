@@ -1,0 +1,307 @@
+{# Modal pour afficher le score du quiz #}
+<div id="scoreModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">🎉 Quiz Terminé !</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="score-display">
+                <div class="score-circle">
+                    <span id="scoreNumber">0</span>
+                    <span class="score-max">/100</span>
+                </div>
+                <div class="score-label">Votre Score</div>
+            </div>
+            <div id="scoreText" class="score-message">Félicitations !</div>
+            <div class="score-actions">
+                <button class="btn-retry" onclick="window.retryQuiz()" type="button">🔄 Réessayer</button>
+                <button class="btn-home" onclick="window.goHome()" type="button">🏠 Retour à l'accueil</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-content {
+        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        margin: 5% auto;
+        padding: 0;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        animation: slideIn 0.4s ease-out;
+        position: relative;
+        overflow: hidden;
+        border: 3px solid #ff6b35;
+    }
+    
+    @keyframes slideIn {
+        from { 
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to { 
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 100%);
+        padding: 25px 30px 20px;
+        position: relative;
+    }
+    
+    .modal-title {
+        color: white;
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-body {
+        padding: 30px;
+    }
+    
+    .score-display {
+        margin-bottom: 25px;
+    }
+    
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        position: relative;
+    }
+    
+    .score-circle::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        background: linear-gradient(135deg, #ff6b35, #ff8c42);
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0.3;
+    }
+    
+    #scoreNumber {
+        color: white;
+        font-size: 36px;
+        font-weight: 800;
+        line-height: 1;
+    }
+    
+    .score-max {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 18px;
+        font-weight: 600;
+    }
+    
+    .score-label {
+        color: #666;
+        font-size: 16px;
+        font-weight: 500;
+        margin-top: 5px;
+    }
+    
+    .score-message {
+        color: #333;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 20px 0 25px;
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 12px;
+        border-left: 4px solid #007bff;
+    }
+    
+    .score-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-retry, .btn-home {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-retry {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    }
+    
+    .btn-retry:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+    }
+    
+    .btn-retry:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-home:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-retry:disabled, .btn-home:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .close {
+        color: white;
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        font-size: 28px;
+        font-weight: 300;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+    // Fonctions pour le scoreModal - Rendre globales pour accès depuis le fichier principal
+    window.showScoreModal = function(score, title) {
+        const modal = document.getElementById('scoreModal');
+        const scoreNumber = document.getElementById('scoreNumber');
+        const scoreText = document.getElementById('scoreText');
+        
+        // Afficher le score dans le cercle
+        scoreNumber.textContent = score;
+        
+        // Définir le message selon le score
+        if (score >= 80) {
+            scoreText.textContent = "🎯 Excellent ! Vous maîtrisez parfaitement ce sujet !";
+        } else if (score >= 60) {
+            scoreText.textContent = "👍 Bien joué ! Vous avez de bonnes connaissances !";
+        } else if (score >= 40) {
+            scoreText.textContent = "📚 Pas mal ! Continuez à vous améliorer !";
+        } else {
+            scoreText.textContent = "💪 Courage ! La pratique rend parfait !";
+        }
+        
+        modal.style.display = 'block';
+
+        // Gestionnaire pour le bouton de fermeture
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = 'none';
+            window.location.href = "{{ path('selectAll_quizz') }}";
+        };
+
+        // Gestionnaire pour fermer en cliquant à l'extérieur
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                window.location.href = "{{ path('selectAll_quizz') }}";
+            }
+        };
+    };
+    
+    window.retryQuiz = function() {
+        const retryBtn = document.querySelector('.btn-retry');
+        const homeBtn = document.querySelector('.btn-home');
+        
+        // Désactiver les boutons pour éviter les clics multiples
+        retryBtn.disabled = true;
+        homeBtn.disabled = true;
+        retryBtn.textContent = '🔄 Chargement...';
+        
+        // Fermer le modal d'abord
+        document.getElementById('scoreModal').style.display = 'none';
+        
+        // Attendre un peu pour l'animation, puis recharger
+        setTimeout(() => {
+            window.location.reload();
+        }, 300);
+    };
+    
+    window.goHome = function() {
+        const retryBtn = document.querySelector('.btn-retry');
+        const homeBtn = document.querySelector('.btn-home');
+        
+        // Désactiver les boutons pour éviter les clics multiples
+        retryBtn.disabled = true;
+        homeBtn.disabled = true;
+        homeBtn.textContent = '🏠 Redirection...';
+        
+        // Fermer le modal d'abord
+        document.getElementById('scoreModal').style.display = 'none';
+        
+        // Attendre un peu pour l'animation, puis rediriger
+        setTimeout(() => {
+            window.location.href = "{{ path('app_home') }}";
+        }, 300);
+    };
+</script>

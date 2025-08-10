@@ -76,13 +76,8 @@
             </div>
         {% endfor %}
     </div>
-    <div id="scoreModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2 class="modal-title">Titre par défaut</h2>
-            <p id="scoreText">Votre score sera affiché ici.</p>
-        </div>
-    </div>
+    {# Inclusion du modal de score #}
+    {% include 'partials/_score_modal.html.twig' %}
 
     <style>
         .question-with-image {
@@ -349,109 +344,7 @@
             }
         }
         
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .modal-content {
-            background: linear-gradient(135deg, #ff6b35 0%, #e55a2b 50%, #ff8c42 100%);
-            margin: 10% auto;
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.4s ease-out;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        @keyframes slideIn {
-            from { 
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to { 
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        .modal-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-        }
-        
-        .modal-title {
-            color: white;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1;
-        }
-        
-        #scoreText {
-            color: white;
-            font-size: 24px;
-            font-weight: 600;
-            margin: 30px 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .close {
-            color: white;
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 32px;
-            font-weight: 300;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 2;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .close:hover {
-            color: #ff6b35;
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
+
     </style>
 
     <script>
@@ -539,26 +432,7 @@
                 question.querySelector('.time-left').textContent = timeLeft;
             }
 
-            function showScoreModal(score, title) {
-                const modal = document.getElementById('scoreModal');
-                const scoreText = document.getElementById('scoreText');
-                const modalTitle = document.querySelector('.modal-title');
-                scoreText.textContent = `Votre score est : ${score}`;
-                modalTitle.textContent = title;
-                modal.style.display = 'block';
 
-                document.querySelector('.close').onclick = function() {
-                    modal.style.display = 'none';
-                    window.location.href = "{{ path('selectAll_quizz') }}";
-                };
-
-                window.onclick = function(event) {
-                    if (event.target === modal) {
-                        modal.style.display = 'none';
-                        window.location.href = "{{ path('selectAll_quizz') }}";
-                    }
-                };
-            }
 
             function submitQuizResults() {
                 const results = {
