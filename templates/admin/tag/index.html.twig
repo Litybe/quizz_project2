@@ -31,7 +31,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Nom</th>
-                        <th>Nombre de cours associés</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -40,23 +39,12 @@
                         <tr>
                             <td>{{ tag.id }}</td>
                             <td>{{ tag.name }}</td>
-                            <td>{{ tag.courses|length }}</td>
+                            
                             <td>
                                 <a href="{{ path('admin_tag_edit', {'id': tag.id}) }}" class="btn btn-sm btn-warning equal-width-btn">
                                     <i class="fas fa-edit"></i> Modifier
                                 </a>
-                                {% if tag.courses|length == 0 %}
-                                    <form action="{{ path('admin_tag_delete', {'id': tag.id}) }}" method="post" style="display: inline-block;">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tag.id) }}">
-                                        <button type="submit" class="btn btn-sm btn-danger equal-width-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce tag ?')">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <button class="btn btn-sm btn-danger disabled equal-width-btn" title="Ce tag est utilisé par {{ tag.courses|length }} cours">
-                                        <i class="fas fa-trash"></i> Supprimer
-                                    </button>
-                                {% endif %}
+                                
                             </td>
                         </tr>
                     {% endfor %}
