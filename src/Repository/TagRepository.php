@@ -16,6 +16,8 @@ class TagRepository extends ServiceEntityRepository
 {
     private $cache;
     private $logger;
+    
+    private const CACHE_KEY_TAGS_ORDERED = 'tags_all_ordered_by_name';
 
     public function __construct(ManagerRegistry $registry, CacheInterface $cache, LoggerInterface $logger)
     {
@@ -26,17 +28,15 @@ class TagRepository extends ServiceEntityRepository
 
     public function findAllOrderedByName(): array
     {
-        $cacheKey = 'all_objects_ordered_by_name';
+        $cacheKey = self::CACHE_KEY_TAGS_ORDERED;
 
         // Récupérer les données du cache
         $data = $this->cache->get($cacheKey, function(ItemInterface $item) {
-            $cacheKey = 'all_objects_ordered_by_name';
-
             $item->expiresAfter(3600);
             $result = $this->findBy([], ['name' => 'ASC']);
 
             // Logger le contenu qui vient d'être mis en cache
-            $this->logger->info('Cache mis à jour pour la clé: ' . $cacheKey, ['data' => $result]);
+            $this->logger->info('Cache mis à jour pour la clé: ' . self::CACHE_KEY_TAGS_ORDERED, ['data' => $result]);
 
             return $result;
         });
@@ -45,5 +45,14 @@ class TagRepository extends ServiceEntityRepository
         $this->logger->info('Données récupérées du cache pour la clé: ' . $cacheKey, ['data' => $data]);
 
         return $data;
+    }
+    
+    /**
+     * Invalide le cache des tags
+     */
+    public function invalidateCache(): void
+    {
+        $this->cache->delete(self::CACHE_KEY_TAGS_ORDERED);
+        $this->logger->info('Cache des tags invalidé');
     }
 }

@@ -2,6 +2,7 @@
 namespace App\Command;
 
 use App\Entity\Tag;
+use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -16,10 +17,12 @@ class InitializeTagsCommand extends Command
     protected static string $defaultName = 'app:initialize-tags';
 
     private EntityManagerInterface $em;
+    private TagRepository $tagRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, TagRepository $tagRepository)
     {
         $this->em = $em;
+        $this->tagRepository = $tagRepository;
         parent::__construct();
     }
 
@@ -59,6 +62,12 @@ class InitializeTagsCommand extends Command
         }
 
         $this->em->flush();
+        
+        // Invalider le cache des tags si des tags ont été créés
+        if ($createdCount > 0) {
+            $this->tagRepository->invalidateCache();
+            $io->writeln("Cache des tags invalidé");
+        }
 
         $io->success(sprintf(
             'Initialisation des tags terminée avec succès ! %d tags créés, %d tags existants.',

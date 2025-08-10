@@ -42,7 +42,7 @@ class AdminTagController extends AbstractController
      * Crée un nouveau tag
      */
     #[Route('/new', name: 'admin_tag_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, TagRepository $tagRepository): Response
     {
         $tag = new Tag();
         $form = $this->createForm(TagForm::class, $tag);
@@ -52,6 +52,9 @@ class AdminTagController extends AbstractController
         if ($request->isMethod('POST')){
             $entityManager->persist($tag);
             $entityManager->flush();
+            
+            // Invalider le cache des tags
+            $tagRepository->invalidateCache();
 
             $this->addFlash('success', self::SUCCESS_MESSAGES['created']);
             return $this->redirectToRoute('admin_tag_index');
@@ -67,13 +70,16 @@ class AdminTagController extends AbstractController
      * Modifie un tag existant
      */
     #[Route('/{id}/edit', name: 'admin_tag_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Tag $tag, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Tag $tag, EntityManagerInterface $entityManager, TagRepository $tagRepository): Response
     {
         $form = $this->createForm(TagForm::class, $tag);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            
+            // Invalider le cache des tags
+            $tagRepository->invalidateCache();
 
             $this->addFlash('success', self::SUCCESS_MESSAGES['updated']);
             return $this->redirectToRoute('admin_tag_index');
@@ -89,7 +95,7 @@ class AdminTagController extends AbstractController
      * Supprime un tag
      */
     #[Route('/{id}', name: 'admin_tag_delete', methods: ['POST'])]
-    public function delete(Request $request, Tag $tag, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Tag $tag, EntityManagerInterface $entityManager, TagRepository $tagRepository): Response
     {
         if (!$this->isCsrfTokenValid('delete'.$tag->getId(), $request->request->get('_token'))) {
             $this->addFlash('error', self::ERROR_MESSAGES['csrf_invalid']);
@@ -99,6 +105,10 @@ class AdminTagController extends AbstractController
         try {
             $entityManager->remove($tag);
             $entityManager->flush();
+            
+            // Invalider le cache des tags
+            $tagRepository->invalidateCache();
+            
             $this->addFlash('success', self::SUCCESS_MESSAGES['deleted']);
         } catch (\Exception $e) {
             $this->addFlash('error', self::ERROR_MESSAGES['delete_failed']);
