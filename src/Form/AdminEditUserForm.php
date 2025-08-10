@@ -37,7 +37,7 @@ class AdminEditUserForm extends AbstractType
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Enregistrer les modifications',
-                'attr' => ['class' => 'btn btn-primary']
+                'attr' => ['class' => 'btn-save']
             ]);
     }
 
