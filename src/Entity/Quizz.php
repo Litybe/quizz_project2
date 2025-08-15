@@ -27,6 +27,9 @@ class Quizz
     #[ORM\Column(type: 'float')]
     private float $correctAnswerWeight;
 
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private int $responseTime = 14; // 14 secondes par défaut
+
     /**
      * @var Collection<int, Question>
      */
@@ -122,6 +125,17 @@ class Quizz
     public function setCorrectAnswerWeight(float $correctAnswerWeight): self
     {
         $this->correctAnswerWeight = $correctAnswerWeight;
+        return $this;
+    }
+
+    public function getResponseTime(): int
+    {
+        return $this->responseTime;
+    }
+
+    public function setResponseTime(int $responseTime): self
+    {
+        $this->responseTime = $responseTime;
         return $this;
     }
 

@@ -4,9 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\AdminEditUserForm;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use App\Service\UserManagementService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,24 +18,17 @@ class AdminUserController extends AbstractController
         'updated' => 'Les informations de l\'utilisateur ont été mises à jour avec succès !'
     ];
 
-    private const ERROR_MESSAGES = [
-        'validation_failed' => 'Erreur de validation des données.'
-    ];
-
-    private LoggerInterface $_logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->_logger = $logger;
-    }
+    public function __construct(
+        private UserManagementService $userManagementService
+    ) {}
 
     /**
      * Affiche la liste de tous les utilisateurs
      */
     #[Route('/admin/users', name: 'admin_users')]
-    public function index(UserRepository $userRepository): Response
+    public function index(): Response
     {
-        $users = $userRepository->findAll();
+        $users = $this->userManagementService->getAllUsers();
 
         return $this->render('admin/users/index.html.twig', [
             'users' => $users,
@@ -48,20 +39,19 @@ class AdminUserController extends AbstractController
      * Modifie un utilisateur existant
      */
     #[Route('/admin/users/{id}/edit', name: 'admin_user_edit')]
-    public function editUser(
-        User $user,
-        Request $request,
-        EntityManagerInterface $entityManager,
-    ): Response {
+    public function editUser(User $user, Request $request): Response
+    {
         $form = $this->createForm(AdminEditUserForm::class, $user);
         $form->handleRequest($request);
 
         if ($request->isMethod('POST')) {
-            // Sauvegarder les modifications
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            $this->addFlash('success', self::SUCCESS_MESSAGES['updated']);
+            try {
+                $this->userManagementService->updateUser($user);
+                $this->addFlash('success', self::SUCCESS_MESSAGES['updated']);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la mise à jour.');
+            }
+            
             return $this->redirectToRoute('admin_users');
         }
 

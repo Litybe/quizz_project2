@@ -14,7 +14,7 @@
                         </div>
                         <div class="content-container">
                             <h3>{{ question.questionText }}</h3>
-                            <div class="timer">Temps restant: <span class="time-left">15</span> secondes</div>
+                            <div class="timer">Temps restant: <span class="time-left">{{ quizz.responseTime }}</span> secondes</div>
                             {% if not question.isTextual %}
                                 <div class="answers">
                                     {% for answer in question.answers %}
@@ -44,7 +44,7 @@
                 {% else %}
                     <div class="content-container-no-image">
                         <h3>{{ question.questionText }}</h3>
-                        <div class="timer">Temps restant: <span class="time-left">15</span> secondes</div>
+                        <div class="timer">Temps restant: <span class="time-left">{{ quizz.responseTime }}</span> secondes</div>
                         {% if not question.isTextual %}
                             <div class="answers">
                                 {% for answer in question.answers %}
@@ -400,7 +400,7 @@
                 questions[index].style.display = 'block';
                 const questionId = questions[index].dataset.questionId;
                 const startTime = new Date();
-                timeLeft = 15;
+                timeLeft = {{ quizz.responseTime }};
                 updateTimerDisplay(questions[index]);
                 timerInterval = setInterval(function() {
                     timeLeft--;

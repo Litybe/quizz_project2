@@ -34,6 +34,10 @@ services:
     App\EventListener\SessionPersistenceListener:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+
+    App\Service\QuizManagementService:
+        arguments:
+            $imagesDirectory: '%images_directory%'
     
     # Configuration explicite du service de persistance de session
     # App\Service\SessionPersistenceService: # Plus nécessaire avec RequestStack

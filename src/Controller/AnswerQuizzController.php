@@ -14,14 +14,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AnswerQuizzController extends AbstractController
 {
-    private $quizzService;
-    private $scoreService;
-
-    public function __construct(QuizzService $quizzService, ScoreService $scoreService)
-    {
-        $this->quizzService = $quizzService;
-        $this->scoreService = $scoreService;
-    }
+    public function __construct(
+        private QuizzService $quizzService,
+        private ScoreService $scoreService
+    ) {}
 
     #[Route('/quizz/select', name: 'selectAll_quizz')]
     public function selectQuiz(Request $request): Response

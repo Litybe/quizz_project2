@@ -19,6 +19,11 @@
                 <input type="number" id="correct-answer-weight" name="correctAnswerWeight" value="{{ quiz.correctAnswerWeight }}" min="0" max="1" step="0.01" required>
             </div>
             <div>
+                <label for="response-time">Temps de Réponse (en secondes) :</label>
+                <input type="number" id="response-time" name="responseTime" value="{{ quiz.responseTime }}" min="0" max="3600" step="1" required>
+                <small style="color: #fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);">Temps maximum pour répondre au quiz (0 seconde à 1 heure)</small>
+            </div>
+            <div>
                 <label>Tags :</label>
                 <div class="tag-checkboxes">
                     {% for tag in tags %}
@@ -40,7 +45,14 @@
                     <input type="text" class="form-control" name="questions[{{ loop.index0 }}][text]" value="{{ question.questionText }}" required>
                     <div class="form-group">
                         <label for="quiz_image">Image</label>
-                        <input type="file" class="form-control" id="questions-image-0" name="questions[0][image]" value="{{ question.ImagePath }}">
+                        <input type="file" class="form-control" id="questions-image-{{ loop.index0 }}" name="questions[{{ loop.index0 }}][image]" accept="image/*">
+                        <div id="image-preview-{{ loop.index0 }}" class="image-preview">
+                            {% if question.imagePath %}
+                                <img id="preview-img-{{ loop.index0 }}" src="{{ asset('uploads/images/' ~ question.imagePath) }}" alt="Image actuelle" style="max-width: 150px; max-height: 150px; margin-top: 10px;">
+                            {% else %}
+                                <img id="preview-img-{{ loop.index0 }}" src="" alt="Aperçu de l'image" style="max-width: 150px; max-height: 150px; margin-top: 10px; display: none;">
+                            {% endif %}
+                        </div>
                     </div>
                     <div>
                         <label for="question-type-{{ loop.index0 }}">Type de Question :</label>
@@ -89,8 +101,189 @@
         .form-check-input {
             margin-right: 5px;
         }
+        .image-preview {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: rgba(249, 249, 249, 0.7);
+        }
+        .image-preview img {
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        /* Amélioration de la lisibilité des formulaires */
+        form {
+            background-color: transparent;
+        }
+        
+        input[type="text"], input[type="number"], select, textarea {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #000;
+            font-weight: 600;
+        }
+        
+        /* Amélioration de la visibilité générale */
+        body {
+            color: #fff;
+        }
+        
+        /* Style pour les textes dans les champs */
+        input::placeholder {
+            color: #666;
+            font-weight: 400;
+        }
+        
+        /* Style pour les options des selects */
+        option {
+            color: #000;
+            background-color: #fff;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            background-color: rgba(255, 255, 255, 1);
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+        
+        label {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            display: block;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        h1, h3, h4 {
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+        }
+        
+        .form-check-label {
+            color: #fff;
+            font-weight: 500;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Styles des boutons */
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        button[type="submit"] {
+            background-color: #28a745;
+        }
+        
+        button[type="submit"]:hover {
+            background-color: #1e7e34;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .question {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: transparent;
+        }
+        
+        /* Amélioration de la visibilité des textes dans les questions */
+        .question h3 {
+            color: #fff;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .answer {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .answer label {
+            color: #000;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Style pour les checkboxes */
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        /* Style pour les textes des réponses */
+        .answers h4, .answers-container h4 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
     <script>
+        // Fonction pour afficher l'aperçu de l'image
+        function handleImagePreview(input, index) {
+            const preview = document.getElementById(`image-preview-${index}`);
+            const previewImg = document.getElementById(`preview-img-${index}`);
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                previewImg.style.display = 'none';
+            }
+        }
+
+        // Ajouter les écouteurs d'événements pour l'aperçu d'image des questions existantes
+        document.querySelectorAll('input[type="file"]').forEach(function(input) {
+            if (input.id && input.id.startsWith('questions-image-')) {
+                const index = input.id.split('-')[2];
+                input.addEventListener('change', function() {
+                    handleImagePreview(this, index);
+                });
+            }
+        });
+
         document.querySelector('form').addEventListener('submit', function(event) {
             const questionType = document.getElementById('question-type-0').value;
             const textualAnswer = document.getElementById('correct-textual-answer-0');
@@ -115,7 +308,10 @@
                 </div>
                 <div class="form-group">
                     <label for="quiz_image">Image</label>
-                    <input type="file" class="form-control" id="questions-image-${index}" name="questions[${index}][image]">
+                    <input type="file" class="form-control" id="questions-image-${index}" name="questions[${index}][image]" accept="image/*">
+                    <div id="image-preview-${index}" class="image-preview" style="display: none;">
+                        <img id="preview-img-${index}" src="" alt="Aperçu de l'image" style="max-width: 150px; max-height: 150px; margin-top: 10px;">
+                    </div>
                 </div>
                 <div>
                     <label for="question-type-${index}">Type de Question :</label>
@@ -153,6 +349,11 @@
             // Add event listeners for newly added question type change
             document.getElementById(`question-type-${index}`).addEventListener('change', function() {
                 toggleAnswerType(this.value, index);
+            });
+            
+            // Ajouter l'écouteur d'événement pour l'aperçu d'image des nouvelles questions
+            document.getElementById(`questions-image-${index}`).addEventListener('change', function() {
+                handleImagePreview(this, index);
             });
 
             // Add event listeners for newly added remove button
