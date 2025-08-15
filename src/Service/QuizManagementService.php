@@ -171,10 +171,15 @@ class QuizManagementService
         $question->setQuestionText($questionData['text']);
         $question->setIsTextual($questionData['type'] === 'textual');
 
+        // Gestion de l'image pour tous les types de questions
+        if (isset($files['questions'][$index]['image']) && $files['questions'][$index]['image']) {
+            $this->handleImageUpload($question, $files['questions'][$index]['image']);
+        }
+
         if ($question->isTextual()) {
             $question->setCorrectTextualAnswer($questionData['correctTextualAnswer']);
         } else {
-            $this->handleImageQuestion($question, $questionData, $files, $index);
+            $this->processAnswers($question, $questionData);
         }
     }
 
@@ -183,38 +188,27 @@ class QuizManagementService
         $question->setQuestionText($questionData['text']);
         $question->setIsTextual($questionData['type'] === 'textual');
 
+        // Gestion de l'image pour tous les types de questions
+        if (isset($files['questions'][$index]['image']) && $files['questions'][$index]['image']) {
+            $this->handleImageUpload($question, $files['questions'][$index]['image']);
+        }
+
         if ($question->isTextual()) {
             $question->setCorrectTextualAnswer($questionData['correctTextualAnswer']);
         } else {
-            $this->handleImageQuestionForUpdate($question, $questionData, $files, $index);
+            $this->updateAnswers($question, $questionData);
         }
     }
 
     private function handleImageQuestion(Question $question, array $questionData, array $files, int $index): void
     {
-        if (isset($files['questions'][$index]['image']) && $files['questions'][$index]['image']) {
-            $this->handleImageUpload($question, $files['questions'][$index]['image']);
-        }
-
+        // L'image est maintenant gérée dans populateQuestionFromData
         $this->processAnswers($question, $questionData);
     }
 
     private function handleImageQuestionForUpdate(Question $question, array $questionData, array $files, int $index): void
     {
-        // Debug: Log pour vérifier si un fichier est présent
-        if (isset($files['questions'][$index]['image']) && $files['questions'][$index]['image']) {
-            $this->logger->info('Image file found for question update', [
-                'questionId' => $question->getId(),
-                'fileName' => $files['questions'][$index]['image']->getClientOriginalName()
-            ]);
-            $this->handleImageUpload($question, $files['questions'][$index]['image']);
-        } else {
-            $this->logger->info('No image file found for question update', [
-                'questionId' => $question->getId(),
-                'files' => array_keys($files)
-            ]);
-        }
-
+        // L'image est maintenant gérée dans populateQuestionFromDataForUpdate
         $this->updateAnswers($question, $questionData);
     }
 
