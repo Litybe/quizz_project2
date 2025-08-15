@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Service\ScoreService;
+use App\Service\SessionPersistenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -19,11 +20,16 @@ class FaceitCallbackController extends AbstractController
 
     private LoggerInterface $logger;
     private ScoreService $scoreService;
+    private SessionPersistenceService $sessionPersistence;
 
-    function __construct(LoggerInterface $logger, ScoreService $scoreService)
-    {
+    function __construct(
+        LoggerInterface $logger, 
+        ScoreService $scoreService,
+        SessionPersistenceService $sessionPersistence
+    ) {
         $this->logger = $logger;
         $this->scoreService = $scoreService;
+        $this->sessionPersistence = $sessionPersistence;
     }
 
     /**
@@ -76,10 +82,8 @@ class FaceitCallbackController extends AbstractController
             // Créer ou mettre à jour l'utilisateur dans la base de données
             $user = $this->getOrCreateUser($userInfo, $entityManager);
 
-            // Authentifier l'utilisateur dans Symfony
-            $token = new UsernamePasswordToken($user,  'main', $user->getRoles());
-            $this->container->get('security.token_storage')->setToken($token);
-            $session->set('_security_main', serialize($token));
+            // Authentifier l'utilisateur et activer le "Remember Me"
+            $this->sessionPersistence->enableRememberMe($user);
 
             // Récupérer et sauvegarder le score temporaire s'il existe
             $tempScoreResult = $this->scoreService->saveTemporaryScore($session, $user);

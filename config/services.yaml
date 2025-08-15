@@ -29,3 +29,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    
+    # Configuration du listener de persistance de session
+    App\EventListener\SessionPersistenceListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+    
+    # Configuration explicite du service de persistance de session
+    # App\Service\SessionPersistenceService: # Plus nécessaire avec RequestStack

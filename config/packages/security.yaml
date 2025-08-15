@@ -18,6 +18,11 @@ security:
                 login_path: faceit_login
                 check_path: faceit_login
                 enable_csrf: true
+            remember_me:
+                secret: '%env(APP_SECRET)%'
+                lifetime: 2592000 # 30 jours
+                always_remember_me: true
+                remember_me_parameter: _remember_me
             logout:
                 path: logout
                 # where to redirect after logout
