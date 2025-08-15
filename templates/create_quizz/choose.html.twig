@@ -1,6 +1,12 @@
 {# templates/create_quizz/choose.html.twig #}
 {% extends 'base.html.twig' %}
 {% block title %}Administration - Quiz{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/universal-card.css') }}">
+{% endblock %}
+
 {% block body %}
     <div class="container mt-5">
         <h1 class="mb-4">Administration des Quiz</h1>
@@ -16,22 +22,33 @@
         <!-- Supprimer la table, et utiliser une grille pour les quiz -->
         <div class="quiz-grid" id="quizGrid">
             {% for quiz in quizzes %}
-                <div class="quiz-card">
-                    <h3>{{ quiz.name }}</h3>
-                    <p>{{ quiz.description|slice(0, 50) }}...</p>
-                    <div class="quiz-tags">
-                        {% for tag in quiz.tags %}
-                            <span class="tag-badge">{{ tag.name }}</span>
-                        {% endfor %}
-                    </div>
-                    <div>
-                        <a href="{{ path('quizz_edit', {'id': quiz.id}) }}" class="btn btn-sm btn-warning equal-width-btn">Modifier</a>
-                        <form action="{{ path('quizz_delete', {'id': quiz.id}) }}" method="post" style="display: inline;">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
-                            <button type="submit" class="btn btn-sm btn-danger equal-width-btn" onclick="return confirm('Voulez-vous vraiment supprimer ce quiz ?')">Supprimer</button>
-                        </form>
-                    </div>
-                </div>
+                {% include 'partials/_universal_card.html.twig' with {
+                    card_type: 'quiz',
+                    card_icon: 'fas fa-question-circle',
+                    card_title: quiz.name,
+                    card_description: quiz.description|slice(0, 50) ~ '...',
+                    card_tags: quiz.tags,
+                    card_actions: [
+                        {
+                            type: 'link',
+                            url: path('quizz_edit', {'id': quiz.id}),
+                            icon: 'fas fa-edit',
+                            text: 'Modifier',
+                            class: 'btn-edit',
+                            title: 'Modifier'
+                        },
+                        {
+                            type: 'form',
+                            url: path('quizz_delete', {'id': quiz.id}),
+                            icon: 'fas fa-trash',
+                            text: 'Supprimer',
+                            class: 'btn-delete',
+                            title: 'Supprimer',
+                            token: csrf_token('delete' ~ quiz.id),
+                            onsubmit: "return confirm('Voulez-vous vraiment supprimer ce quiz ?');"
+                        }
+                    ]
+                } %}
             {% else %}
                 <div class="no-quizzes">
                     <p>Aucun quiz disponible pour le moment.</p>
@@ -56,47 +73,7 @@
             gap: 20px;
             padding: 20px;
         }
-        .quiz-card {
-            background: linear-gradient(145deg, #ffffff, #f0f0f0);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid #ddd;
-            position: relative;
-            z-index: 1;
-        }
-        .quiz-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-            z-index: 10;
-        }
-        .quiz-card h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .quiz-card p {
-            color: #666;
-        }
-        .quiz-done {
-            background-color: #4CAF50;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .quiz-notdone {
-            background-color: #af4c4c;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 10px;
-        }
+
         .no-quizzes {
             text-align: center;
             width: 100%;
@@ -159,14 +136,7 @@
         .pagination a:hover:not(.active) {
             background-color: #ddd;
         }
-        .tag-badge {
-            background-color: #FF7700;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            white-space: nowrap;
-        }
+
     </style>
 
     <script>

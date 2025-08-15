@@ -1,0 +1,215 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Démonstration des Cards Universelles{% endblock %}
+
+{% block body %}
+<div class="demo-container">
+    <h1>Démonstration des Cards Universelles</h1>
+    <p>Ce template montre tous les types de cards disponibles avec le composant universel.</p>
+    
+    <div class="demo-section">
+        <h2>Cards de Quiz</h2>
+        <div class="demo-grid">
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'quiz',
+                card_icon: 'fas fa-question-circle',
+                card_title: 'Quiz de Culture Générale',
+                card_description: 'Testez vos connaissances en culture générale avec ce quiz passionnant.',
+                card_tags: [
+                    {name: 'Culture'},
+                    {name: 'Général'},
+                    {name: 'Facile'}
+                ],
+                card_status: {
+                    text: 'Terminé',
+                    class: 'quiz-done'
+                },
+                card_scores: {
+                    user_score: 85,
+                    ranking: 3,
+                    best_score: 95
+                }
+            } %}
+            
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'quiz',
+                card_icon: 'fas fa-gamepad',
+                card_title: 'Quiz Gaming',
+                card_description: 'Découvrez l\'univers du gaming à travers ce quiz interactif.',
+                card_tags: [
+                    {name: 'Gaming'},
+                    {name: 'Vidéo'},
+                    {name: 'Moyen'}
+                ],
+                card_status: {
+                    text: 'Pas encore terminé',
+                    class: 'quiz-notdone'
+                }
+            } %}
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>Cards de Tags</h2>
+        <div class="demo-grid">
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'tag',
+                card_icon: 'fas fa-tag',
+                card_title: 'Culture',
+                card_subtitle: '#1',
+                card_actions: [
+                    {
+                        type: 'link',
+                        url: '#',
+                        icon: 'fas fa-edit',
+                        text: 'Modifier',
+                        class: 'btn-edit',
+                        title: 'Modifier'
+                    },
+                    {
+                        type: 'button',
+                        icon: 'fas fa-trash',
+                        text: 'Supprimer',
+                        class: 'btn-delete',
+                        title: 'Supprimer',
+                        onclick: "alert('Suppression simulée')"
+                    }
+                ]
+            } %}
+            
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'tag',
+                card_icon: 'fas fa-tag',
+                card_title: 'Gaming',
+                card_subtitle: '#2',
+                card_actions: [
+                    {
+                        type: 'link',
+                        url: '#',
+                        icon: 'fas fa-edit',
+                        text: 'Modifier',
+                        class: 'btn-edit',
+                        title: 'Modifier'
+                    },
+                    {
+                        type: 'button',
+                        icon: 'fas fa-trash',
+                        text: 'Supprimer',
+                        class: 'btn-delete',
+                        title: 'Supprimer',
+                        onclick: "alert('Suppression simulée')"
+                    }
+                ]
+            } %}
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>Cards d'Utilisateurs</h2>
+        <div class="demo-grid">
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'user',
+                card_icon: 'fas fa-user',
+                card_title: 'John Doe',
+                card_subtitle: '#123',
+                card_description: 'john.doe@example.com • Utilisateur',
+                card_actions: [
+                    {
+                        type: 'link',
+                        url: '#',
+                        icon: 'fas fa-edit',
+                        text: 'Modifier',
+                        class: 'btn-edit',
+                        title: 'Modifier'
+                    }
+                ]
+            } %}
+            
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'user',
+                card_icon: 'fas fa-user-shield',
+                card_title: 'Admin User',
+                card_subtitle: '#456',
+                card_description: 'admin@example.com • Administrateur',
+                card_actions: [
+                    {
+                        type: 'link',
+                        url: '#',
+                        icon: 'fas fa-edit',
+                        text: 'Modifier',
+                        class: 'btn-edit',
+                        title: 'Modifier'
+                    }
+                ]
+            } %}
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>Card Simple (Sans Actions)</h2>
+        <div class="demo-grid">
+            {% include 'partials/_universal_card.html.twig' with {
+                card_type: 'info',
+                card_icon: 'fas fa-info-circle',
+                card_title: 'Information',
+                card_description: 'Cette card n\'a pas d\'actions et peut être utilisée pour afficher des informations simples.'
+            } %}
+        </div>
+    </div>
+</div>
+
+<style>
+.demo-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.demo-container h1 {
+    color: #FF7700;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+}
+
+.demo-container > p {
+    text-align: center;
+    color: #b0b0b0;
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+}
+
+.demo-section {
+    margin-bottom: 4rem;
+}
+
+.demo-section h2 {
+    color: #e0e0e0;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #FF7700;
+    padding-bottom: 0.5rem;
+}
+
+.demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .demo-container {
+        padding: 1rem;
+    }
+    
+    .demo-container h1 {
+        font-size: 2rem;
+    }
+    
+    .demo-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

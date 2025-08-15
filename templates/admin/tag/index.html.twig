@@ -47,30 +47,32 @@
             {% if tags|length > 0 %}
                 <div class="tags-grid">
                     {% for tag in tags %}
-                        <div class="tag-card" data-tag-id="{{ tag.id }}">
-                            <div class="tag-header">
-                                <div class="tag-icon">
-                                    <i class="fas fa-tag"></i>
-                                </div>
-                                <div class="tag-info">
-                                    <h3 class="tag-name">{{ tag.name }}</h3>
-                                    <span class="tag-id">#{{ tag.id }}</span>
-                                </div>
-                            </div>
-                            <div class="tag-actions">
-                                <a href="{{ path('admin_tag_edit', {'id': tag.id}) }}" class="btn-edit" title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                    <span>Modifier</span>
-                                </a>
-                                <form method="post" action="{{ path('admin_tag_delete', {'id': tag.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce tag ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ tag.id) }}">
-                                    <button type="submit" class="btn-delete" title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                        <span>Supprimer</span>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        {% include 'partials/_universal_card.html.twig' with {
+                            card_type: 'tag',
+                            card_icon: 'fas fa-tag',
+                            card_title: tag.name,
+                            card_subtitle: '#' ~ tag.id,
+                            card_actions: [
+                                {
+                                    type: 'link',
+                                    url: path('admin_tag_edit', {'id': tag.id}),
+                                    icon: 'fas fa-edit',
+                                    text: 'Modifier',
+                                    class: 'btn-edit',
+                                    title: 'Modifier'
+                                },
+                                {
+                                    type: 'form',
+                                    url: path('admin_tag_delete', {'id': tag.id}),
+                                    icon: 'fas fa-trash',
+                                    text: 'Supprimer',
+                                    class: 'btn-delete',
+                                    title: 'Supprimer',
+                                    token: csrf_token('delete' ~ tag.id),
+                                    onsubmit: "return confirm('Êtes-vous sûr de vouloir supprimer ce tag ?');"
+                                }
+                            ]
+                        } %}
                     {% endfor %}
                 </div>
             {% else %}
@@ -219,131 +221,6 @@
             margin-top: 2rem;
         }
 
-        .tag-card {
-            background: linear-gradient(135deg, #383838 0%, #2a2a2a 100%);
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid rgba(255, 119, 0, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .tag-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #FF7700, #FF9500);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .tag-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 119, 0, 0.3);
-        }
-
-        .tag-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .tag-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .tag-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #FF7700 0%, #FF9500 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-        }
-
-        .tag-info {
-            flex: 1;
-        }
-
-        .tag-name {
-            color: #e0e0e0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0 0 0.25rem 0;
-        }
-
-        .tag-id {
-            color: #888;
-            font-size: 0.8rem;
-            font-family: 'Courier New', monospace;
-        }
-
-        .tag-actions {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .btn-edit {
-            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
-            color: #212529;
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            flex: 1;
-            justify-content: center;
-            font-size: 0.9rem;
-        }
-
-        .btn-edit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
-            color: #212529;
-            text-decoration: none;
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            flex: 1;
-            justify-content: center;
-            font-size: 0.9rem;
-        }
-
-        .btn-delete:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
-            color: white;
-            text-decoration: none;
-            background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
-        }
-
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -452,28 +329,10 @@
             }
         }
 
-        /* Loading Animation */
-        .tag-card {
-            animation: fadeInUp 0.6s ease forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
 
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .tag-card:nth-child(1) { animation-delay: 0.1s; }
-        .tag-card:nth-child(2) { animation-delay: 0.2s; }
-        .tag-card:nth-child(3) { animation-delay: 0.3s; }
-        .tag-card:nth-child(4) { animation-delay: 0.4s; }
-        .tag-card:nth-child(5) { animation-delay: 0.5s; }
-        .tag-card:nth-child(6) { animation-delay: 0.6s; }
     </style>
 {% endblock %}
 
 {% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/universal-card.css') }}">
 {% endblock %}

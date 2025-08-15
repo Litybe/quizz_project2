@@ -1,0 +1,92 @@
+{# Composant card universel avec design sombre #}
+{% set card_classes = 'universal-card ' ~ card_type|default('default') ~ '-card' %}
+{% if card_type == 'quiz' and card_status is defined and card_status.class is defined %}
+    {% set card_classes = card_classes ~ ' ' ~ card_status.class %}
+{% endif %}
+
+<div class="{{ card_classes }}" {% if onclick_action is defined %}onclick="{{ onclick_action }}"{% endif %}>
+    {% if card_icon is defined %}
+        <div class="card-icon">
+            <i class="{{ card_icon }}"></i>
+        </div>
+    {% endif %}
+    
+    <div class="card-content">
+        {% if card_title is defined %}
+            <h3 class="card-title">{{ card_title }}</h3>
+        {% endif %}
+        
+        {% if card_subtitle is defined %}
+            <span class="card-subtitle">{{ card_subtitle }}</span>
+        {% endif %}
+        
+        {% if card_description is defined %}
+            <p class="card-description">{{ card_description }}</p>
+        {% endif %}
+        
+        {% if card_tags is defined and card_tags|length > 0 %}
+            <div class="card-tags">
+                {% for tag in card_tags %}
+                    <span class="tag-badge">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% if card_status is defined %}
+            <div class="card-status {{ card_status.class|default('') }}">
+                {{ card_status.text }}
+            </div>
+        {% endif %}
+        
+        {% if card_scores is defined %}
+            <div class="card-scores">
+                {% if card_scores.user_score is defined %}
+                    <div class="score-item user-score">
+                        <span class="score-label">Score:</span>
+                        <span class="score-value">{{ card_scores.user_score }}/100</span>
+                    </div>
+                {% endif %}
+                
+                {% if card_scores.ranking is defined %}
+                    <div class="score-item ranking">
+                        <span class="score-label">Classé:</span>
+                        <span class="score-value">{{ card_scores.ranking }}e</span>
+                    </div>
+                {% endif %}
+                
+                {% if card_scores.best_score is defined %}
+                    <div class="score-item best-score">
+                        <span class="score-label">Meilleur:</span>
+                        <span class="score-value">{{ card_scores.best_score }}/100</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if card_actions is defined %}
+        <div class="card-actions">
+            {% for action in card_actions %}
+                {% if action.type == 'link' %}
+                    <a href="{{ action.url }}" class="card-action-btn {{ action.class|default('') }}" title="{{ action.title|default('') }}">
+                        <i class="{{ action.icon }}"></i>
+                        <span>{{ action.text }}</span>
+                    </a>
+                {% elseif action.type == 'button' %}
+                    <button type="button" class="card-action-btn {{ action.class|default('') }}" title="{{ action.title|default('') }}" onclick="{{ action.onclick|default('') }}">
+                        <i class="{{ action.icon }}"></i>
+                        <span>{{ action.text }}</span>
+                    </button>
+                {% elseif action.type == 'form' %}
+                    <form method="post" action="{{ action.url }}" style="display: inline;" onsubmit="{{ action.onsubmit|default('return true;') }}">
+                        <input type="hidden" name="_token" value="{{ action.token }}">
+                        <button type="submit" class="card-action-btn {{ action.class|default('') }}" title="{{ action.title|default('') }}">
+                            <i class="{{ action.icon }}"></i>
+                            <span>{{ action.text }}</span>
+                        </button>
+                    </form>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

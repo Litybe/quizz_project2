@@ -10,7 +10,7 @@
                 {% if question.imagePath %}
                     <div class="question-with-image">
                         <div class="image-container">
-                            <img src="{{ asset('uploads/images/' ~ question.imagePath) }}" alt="Question Image" style="max-width: 1080px; max-height: 650px; width: auto; height: auto;">
+                            <img src="{{ asset('uploads/images/' ~ question.imagePath) }}" alt="Question Image" style="max-width: 1200px; max-height: 800px; width: auto; height: auto;">
                         </div>
                         <div class="content-container">
                             <h3>{{ question.questionText }}</h3>
@@ -82,7 +82,7 @@
     <style>
         .question-with-image {
             display: flex;
-            gap: 0;
+            gap: 30px;
             align-items: flex-start;
             margin: 20px 0;
             position: relative;
@@ -93,9 +93,7 @@
         }
         
         .content-container {
-            position: absolute;
-            right: 20px;
-            top: 20px;
+            position: static;
             width: 350px;
             background-color: rgba(255, 255, 255, 0.95);
             padding: 20px;
@@ -268,8 +266,6 @@
                 max-height: 500px !important;
             }
             .content-container {
-                right: 80px;
-                top: 60px;
                 width: 300px;
             }
         }
@@ -280,8 +276,6 @@
                 max-height: 450px !important;
             }
             .content-container {
-                right: 40px;
-                top: 40px;
                 width: 280px;
             }
         }
@@ -292,8 +286,6 @@
                 max-height: 375px !important;
             }
             .content-container {
-                right: 20px;
-                top: 20px;
                 width: 250px;
             }
         }
