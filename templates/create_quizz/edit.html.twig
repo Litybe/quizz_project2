@@ -43,6 +43,8 @@
                 <div class="question">
                     <h3>Question {{ loop.index0 }}</h3>
                     <input type="text" class="form-control" name="questions[{{ loop.index0 }}][text]" value="{{ question.questionText }}" required>
+                    
+                    <!-- Image déplacée en dehors de la logique de type de question -->
                     <div class="form-group">
                         <label for="quiz_image">Image</label>
                         <input type="file" class="form-control" id="questions-image-{{ loop.index0 }}" name="questions[{{ loop.index0 }}][image]" accept="image/*">
@@ -54,6 +56,7 @@
                             {% endif %}
                         </div>
                     </div>
+                    
                     <div>
                         <label for="question-type-{{ loop.index0 }}">Type de Question :</label>
                         <select id="question-type-{{ loop.index0 }}" name="questions[{{ loop.index0 }}][type]" required>
@@ -61,6 +64,7 @@
                             <option value="textual" {{ question.isTextual ? 'selected' : '' }}>Textuelle</option>
                         </select>
                     </div>
+                    
                     <div id="multiple-choice-answers-{{ loop.index0 }}" style="{{ question.isTextual ? 'display: none;' : '' }}">
                         <div class="answers-container">
                             {% for answer in question.answers %}
@@ -72,8 +76,9 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <button type="button" class="btn btn-secondary add-answer">Ajouter une Réponse</button>
+                        <button type="button" class="btn btn-secondary add-answer" data-question-index="{{ loop.index0 }}">Ajouter une Réponse</button>
                     </div>
+                    
                     <div id="textual-answer-{{ loop.index0 }}" style="{{ question.isTextual ? '' : 'display: none;' }}">
                         <div>
                             <label for="correct-textual-answer-{{ loop.index0 }}">Réponse correcte :</label>
@@ -334,7 +339,7 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="btn btn-secondary add-answer">Ajouter une Réponse</button>
+                    <button type="button" class="btn btn-secondary add-answer" data-question-index="${index}">Ajouter une Réponse</button>
                 </div>
                 <div id="textual-answer-${index}" style="display: none;">
                     <div>
@@ -386,6 +391,31 @@
                 textualAnswer.style.display = 'block';
             }
         }
+
+        // Fonction pour ajouter une nouvelle réponse
+        function addAnswer(questionIndex) {
+            const answersContainer = document.querySelector(`#multiple-choice-answers-${questionIndex} .answers-container`);
+            const answerCount = answersContainer.children.length;
+            
+            const newAnswer = document.createElement('div');
+            newAnswer.className = 'answer';
+            newAnswer.innerHTML = `
+                <input type="text" class="form-control" name="questions[${questionIndex}][answers][${answerCount}][text]" placeholder="Nouvelle réponse">
+                <label>
+                    <input type="checkbox" name="questions[${questionIndex}][correctAnswers][]" value="${answerCount}"> Correcte
+                </label>
+            `;
+            
+            answersContainer.appendChild(newAnswer);
+        }
+
+        // Gestionnaire d'événements pour les boutons "Ajouter une Réponse"
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('add-answer')) {
+                const questionIndex = event.target.getAttribute('data-question-index');
+                addAnswer(questionIndex);
+            }
+        });
 
         document.querySelectorAll('[id^="question-type-"]').forEach(function(element) {
             element.addEventListener('change', function() {

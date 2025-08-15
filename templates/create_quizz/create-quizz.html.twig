@@ -48,6 +48,8 @@
                     <label for="question-text-0">Texte de la Question :</label>
                     <input type="text" id="question-text-0" name="questions[0][text]" required>
                 </div>
+                
+                <!-- Image déplacée en dehors de la logique de type de question -->
                 <div class="form-group">
                     <label for="quiz_image">Image</label>
                     <input type="file" class="form-control" id="questions-image-0" name="questions[0][image]" accept="image/*">
@@ -55,6 +57,7 @@
                         <img id="preview-img-0" src="" alt="Aperçu de l'image" style="max-width: 150px; max-height: 150px; margin-top: 10px;">
                     </div>
                 </div>
+                
                 <div>
                     <label for="question-type-0">Type de Question :</label>
                     <select id="question-type-0" name="questions[0][type]" required>
@@ -62,6 +65,7 @@
                         <option value="textual">Textuelle</option>
                     </select>
                 </div>
+                
                 <div id="multiple-choice-answers-0">
                     <div class="answers">
                         <h4>Réponses :</h4>
@@ -76,7 +80,9 @@
                             </div>
                         {% endfor %}
                     </div>
+                    <button type="button" class="btn btn-secondary add-answer" data-question-index="0">Ajouter une Réponse</button>
                 </div>
+                
                 <div id="textual-answer-0" style="display: none;">
                     <div>
                         <label for="correct-textual-answer-0">Réponse correcte :</label>
@@ -331,6 +337,7 @@
                             </div>
                         {% endfor %}
                     </div>
+                    <button type="button" class="btn btn-secondary add-answer" data-question-index="${index}">Ajouter une Réponse</button>
                 </div>
                 <div id="textual-answer-${index}" style="display: none;">
                     <div>
@@ -361,6 +368,33 @@
                 textualAnswer.style.display = 'block';
             }
         }
+
+        // Fonction pour ajouter une nouvelle réponse
+        function addAnswer(questionIndex) {
+            const answersContainer = document.querySelector(`#multiple-choice-answers-${questionIndex} .answers`);
+            const answerCount = answersContainer.children.length - 1; // -1 car le premier enfant est le h4
+            
+            const newAnswer = document.createElement('div');
+            newAnswer.className = 'answer';
+            newAnswer.innerHTML = `
+                <label for="answer-text-${questionIndex}-${answerCount}">Réponse ${answerCount + 1} :</label>
+                <input type="text" id="answer-text-${questionIndex}-${answerCount}" name="questions[${questionIndex}][answers][${answerCount}][text]">
+                <label>
+                    <input type="checkbox" name="questions[${questionIndex}][correctAnswers][]" value="${answerCount}">
+                    Correcte
+                </label>
+            `;
+            
+            answersContainer.appendChild(newAnswer);
+        }
+
+        // Gestionnaire d'événements pour les boutons "Ajouter une Réponse"
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('add-answer')) {
+                const questionIndex = event.target.getAttribute('data-question-index');
+                addAnswer(questionIndex);
+            }
+        });
 
         document.querySelectorAll('[id^="question-type-"]').forEach(function(element) {
             element.addEventListener('change', function() {
