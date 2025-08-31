@@ -1,0 +1,275 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Strategy{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>Edit Strategy</h1>
+            
+            <form method="post" class="strategy-form">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ strategy.title }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="map" class="form-label">Map</label>
+                    <select class="form-control" id="map" name="map" required>
+                        {% for map in maps %}
+                            <option value="{{ map.id }}" {{ strategy.map.id == map.id ? 'selected' : '' }}>
+                                {{ map.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="side" class="form-label">Side</label>
+                            <select class="form-control" id="side" name="side" required>
+                                <option value="T" {{ strategy.side == 'T' ? 'selected' : '' }}>Terrorist</option>
+                                <option value="CT" {{ strategy.side == 'CT' ? 'selected' : '' }}>Counter-Terrorist</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <select class="form-control" id="difficulty" name="difficulty" required>
+                                <option value="Easy" {{ strategy.difficulty == 'Easy' ? 'selected' : '' }}>Easy</option>
+                                <option value="Medium" {{ strategy.difficulty == 'Medium' ? 'selected' : '' }}>Medium</option>
+                                <option value="Hard" {{ strategy.difficulty == 'Hard' ? 'selected' : '' }}>Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required>{{ strategy.description }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="execution" class="form-label">Execution Steps</label>
+                    <textarea class="form-control" id="execution" name="execution" rows="4">{{ strategy.execution }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="counters" class="form-label">Counters</label>
+                    <textarea class="form-control" id="counters" name="counters" rows="3">{{ strategy.counters }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isPublic" name="isPublic" value="1" {{ strategy.isPublic ? 'checked' : '' }}>
+                        <label class="form-check-label" for="isPublic">
+                            Make this strategy public
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Player Positions</label>
+                    <div id="positions-container">
+                        {% for position in positions %}
+                            <div class="position-item border rounded p-3 mb-2">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Player #</label>
+                                        <input type="number" class="form-control" name="positions[{{ loop.index0 }}][playerNumber]" value="{{ position.playerNumber }}" min="1" max="5" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Position Name</label>
+                                        <input type="text" class="form-control" name="positions[{{ loop.index0 }}][positionName]" value="{{ position.positionName }}">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Role</label>
+                                        <select class="form-control" name="positions[{{ loop.index0 }}][role]">
+                                            <option value="Entry" {{ position.role == 'Entry' ? 'selected' : '' }}>Entry</option>
+                                            <option value="Support" {{ position.role == 'Support' ? 'selected' : '' }}>Support</option>
+                                            <option value="Lurker" {{ position.role == 'Lurker' ? 'selected' : '' }}>Lurker</option>
+                                            <option value="AWP" {{ position.role == 'AWP' ? 'selected' : '' }}>AWP</option>
+                                            <option value="IGL" {{ position.role == 'IGL' ? 'selected' : '' }}>IGL</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-danger btn-sm remove-position">Remove</button>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Description</label>
+                                        <input type="text" class="form-control" name="positions[{{ loop.index0 }}][description]" value="{{ position.description }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Instructions</label>
+                                        <input type="text" class="form-control" name="positions[{{ loop.index0 }}][instructions]" value="{{ position.instructions }}">
+                                    </div>
+                                </div>
+                                <input type="hidden" class="position-x" name="positions[{{ loop.index0 }}][x]" value="{{ position.x }}">
+                                <input type="hidden" class="position-y" name="positions[{{ loop.index0 }}][y]" value="{{ position.y }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="add-position">Add Player</button>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Update Strategy</button>
+                    <a href="{{ path('app_strategy_show', {id: strategy.id}) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Map Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div id="map-preview" class="position-relative" style="width: 100%; height: 300px; background: #f8f9fa; border: 1px solid #dee2e6;">
+                        <img src="{{ strategy.map.image ?: '/assets/images/map-placeholder.jpg' }}" alt="{{ strategy.map.name }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div id="player-markers"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let positionCounter = {{ positions|length }};
+    
+    // Add new position
+    document.getElementById('add-position').addEventListener('click', function() {
+        const container = document.getElementById('positions-container');
+        const newPosition = document.createElement('div');
+        newPosition.className = 'position-item border rounded p-3 mb-2';
+        newPosition.innerHTML = `
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Player #</label>
+                    <input type="number" class="form-control" name="positions[${positionCounter}][playerNumber]" value="${positionCounter + 1}" min="1" max="5" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Position Name</label>
+                    <input type="text" class="form-control" name="positions[${positionCounter}][positionName]" value="">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-control" name="positions[${positionCounter}][role]">
+                        <option value="Entry">Entry</option>
+                        <option value="Support">Support</option>
+                        <option value="Lurker">Lurker</option>
+                        <option value="AWP">AWP</option>
+                        <option value="IGL">IGL</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger btn-sm remove-position">Remove</button>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-control" name="positions[${positionCounter}][description]" value="">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Instructions</label>
+                    <input type="text" class="form-control" name="positions[${positionCounter}][instructions]" value="">
+                </div>
+            </div>
+            <input type="hidden" class="position-x" name="positions[${positionCounter}][x]" value="0">
+            <input type="hidden" class="position-y" name="positions[${positionCounter}][y]" value="0">
+            <div class="mt-2">
+                <small class="text-muted">Click on the map to place this player</small>
+            </div>
+        `;
+        container.appendChild(newPosition);
+        positionCounter++;
+    });
+    
+    // Remove position
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-position')) {
+            e.target.closest('.position-item').remove();
+        }
+    });
+    
+    // Update map preview when coordinates change
+    document.addEventListener('input', function(e) {
+        if (e.target.name && e.target.name.includes('[x]') || e.target.name.includes('[y]')) {
+            updateMapPreview();
+        }
+    });
+    
+    function updateMapPreview() {
+        const markers = document.getElementById('player-markers');
+        markers.innerHTML = '';
+        
+        document.querySelectorAll('.position-item').forEach((item, index) => {
+            const x = parseFloat(item.querySelector('input[name*="[x]"]').value) || 0;
+            const y = parseFloat(item.querySelector('input[name*="[y]"]').value) || 0;
+            const playerNumber = item.querySelector('input[name*="[playerNumber]"]').value || index + 1;
+            
+            if (x > 0 && y > 0) {
+                const marker = document.createElement('div');
+                marker.className = 'player-marker';
+                // Different color for each player
+                const playerColors = [
+                    '#dc3545', // Red - Player 1
+                    '#007bff', // Blue - Player 2
+                    '#28a745', // Green - Player 3
+                    '#ffc107', // Yellow - Player 4
+                    '#6f42c1'  // Purple - Player 5
+                ];
+                
+                const colorIndex = (parseInt(playerNumber) - 1) % playerColors.length;
+                const playerColor = playerColors[colorIndex];
+                
+                marker.style.cssText = `
+                    position: absolute;
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: 35px;
+                    height: 35px;
+                    background: ${playerColor};
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transform: translate(-50%, -50%);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                `;
+                marker.textContent = playerNumber;
+                markers.appendChild(marker);
+            }
+        });
+    }
+    
+    // Initial map preview
+    updateMapPreview();
+});
+</script>
+
+<style>
+.position-item {
+    background: #f8f9fa;
+}
+
+.player-marker:hover {
+    background: #0056b3 !important;
+    transform: translate(-50%, -50%) scale(1.1);
+    transition: all 0.2s ease;
+}
+</style>
+{% endblock %}

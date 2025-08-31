@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ difficulty }} Difficulty Strategies{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Filter by Difficulty</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{{ path('app_strategy_by_difficulty', {difficulty: 'Easy'}) }}" 
+                           class="list-group-item list-group-item-action {{ difficulty == 'Easy' ? 'active' : '' }}">
+                            Easy
+                        </a>
+                        <a href="{{ path('app_strategy_by_difficulty', {difficulty: 'Medium'}) }}" 
+                           class="list-group-item list-group-item-action {{ difficulty == 'Medium' ? 'active' : '' }}">
+                            Medium
+                        </a>
+                        <a href="{{ path('app_strategy_by_difficulty', {difficulty: 'Hard'}) }}" 
+                           class="list-group-item list-group-item-action {{ difficulty == 'Hard' ? 'active' : '' }}">
+                            Hard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Maps</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for mapItem in maps %}
+                            <a href="{{ path('app_strategy_by_map', {slug: mapItem.slug}) }}" class="list-group-item list-group-item-action">
+                                {{ mapItem.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>{{ difficulty }} Difficulty Strategies</h1>
+                <a href="{{ path('app_strategy_new') }}" class="btn btn-primary">Create New Strategy</a>
+            </div>
+
+            {% if strategies is empty %}
+                <div class="alert alert-info">
+                    No {{ difficulty }} difficulty strategies found. Be the first to create one!
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for strategy in strategies %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ strategy.title }}</h5>
+                                    <p class="card-text">{{ strategy.description|length > 100 ? strategy.description|slice(0, 100) ~ '...' : strategy.description }}</p>
+                                    
+                                    <div class="d-flex gap-2 mb-2">
+                                        <span class="badge bg-{{ strategy.side == 'T' ? 'danger' : 'primary' }}">
+                                            {{ strategy.side }}
+                                        </span>
+                                        <span class="badge bg-secondary">{{ strategy.difficulty }}</span>
+                                        <span class="badge bg-info">{{ strategy.map.name }}</span>
+                                        {% if not strategy.isPublic %}
+                                            <span class="badge bg-warning">Private</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            By {{ strategy.author.username }} • {{ strategy.createdAt|date('M d, Y') }}
+                                        </small>
+                                        <a href="{{ path('app_strategy_show', {id: strategy.id}) }}" class="btn btn-outline-primary btn-sm">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

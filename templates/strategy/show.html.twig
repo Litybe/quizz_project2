@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ strategy.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Strategy Header -->
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h1>{{ strategy.title }}</h1>
+                    <div class="d-flex gap-2 mb-2">
+                        <span class="badge bg-{{ strategy.side == 'T' ? 'danger' : 'primary' }} fs-6">
+                            {{ strategy.side == 'T' ? 'Terrorist' : 'Counter-Terrorist' }}
+                        </span>
+                        <span class="badge bg-secondary fs-6">{{ strategy.difficulty }}</span>
+                        <span class="badge bg-info fs-6">{{ strategy.map.name }}</span>
+                        {% if not strategy.isPublic %}
+                            <span class="badge bg-warning fs-6">Private</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted">
+                        Created by {{ strategy.author.username }} on {{ strategy.createdAt|date('F d, Y') }}
+                        {% if strategy.updatedAt != strategy.createdAt %}
+                            • Updated {{ strategy.updatedAt|date('F d, Y') }}
+                        {% endif %}
+                    </p>
+                </div>
+                
+                {% if app.user and strategy.author == app.user %}
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('app_strategy_edit', {id: strategy.id}) }}" class="btn btn-outline-primary">Edit</a>
+                        <form method="post" action="{{ path('app_strategy_delete', {id: strategy.id}) }}" 
+                              onsubmit="return confirm('Are you sure you want to delete this strategy?')" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ strategy.id) }}">
+                            <button type="submit" class="btn btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Strategy Description -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Description</h5>
+                    <p class="card-text">{{ strategy.description }}</p>
+                </div>
+            </div>
+
+            <!-- Execution Steps -->
+            {% if strategy.execution %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Execution Steps</h5>
+                        <div class="card-text">{{ strategy.execution|nl2br }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Counters -->
+            {% if strategy.counters %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Counters</h5>
+                        <div class="card-text">{{ strategy.counters|nl2br }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Player Positions -->
+            {% if positions is not empty %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Player Positions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for position in positions %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="border rounded p-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0">Player {{ position.playerNumber }}</h6>
+                                            <span class="badge bg-secondary">{{ position.role }}</span>
+                                        </div>
+                                        <p class="mb-2"><strong>{{ position.positionName }}</strong></p>
+                                        {% if position.description %}
+                                            <p class="text-muted small mb-2">{{ position.description }}</p>
+                                        {% endif %}
+                                        {% if position.instructions %}
+                                            <p class="text-muted small mb-0"><em>{{ position.instructions }}</em></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Related Strategies -->
+            {% if relatedStrategies is not empty %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Related Strategies on {{ strategy.map.name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for related in relatedStrategies %}
+                                {% if related.id != strategy.id %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="border rounded p-3">
+                                            <h6 class="mb-2">
+                                                <a href="{{ path('app_strategy_show', {id: related.id}) }}" class="text-decoration-none">
+                                                    {{ related.title }}
+                                                </a>
+                                            </h6>
+                                            <div class="d-flex gap-2 mb-2">
+                                                <span class="badge bg-{{ related.side == 'T' ? 'danger' : 'primary' }}">
+                                                    {{ related.side }}
+                                                </span>
+                                                <span class="badge bg-secondary">{{ related.difficulty }}</span>
+                                            </div>
+                                            <small class="text-muted">By {{ related.author.username }}</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Map with Player Positions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ strategy.map.name }} - Player Positions</h5>
+                </div>
+                <div class="card-body">
+                    <div id="strategy-map" class="position-relative" style="width: 100%; height: 400px; background: #f8f9fa; border: 1px solid #dee2e6;">
+                        {% if strategy.map.image %}
+                            <img src="{{ strategy.map.image }}" alt="{{ strategy.map.name }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <span class="text-muted">{{ strategy.map.name }}</span>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Player Markers -->
+                        <div id="player-markers">
+                            {% for position in positions %}
+                                {% if position.x > 0 and position.y > 0 %}
+                                    {% set playerColors = ['#dc3545', '#007bff', '#28a745', '#ffc107', '#6f42c1'] %}
+                                    {% set colorIndex = (position.playerNumber - 1) % playerColors|length %}
+                                    <div class="player-marker" 
+                                         data-player="{{ position.playerNumber }}"
+                                         data-role="{{ position.role }}"
+                                         data-position="{{ position.positionName }}"
+                                         style="position: absolute; left: {{ position.x }}%; top: {{ position.y }}%; width: 35px; height: 35px; background: {{ playerColors[colorIndex] }}; border: 3px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; cursor: pointer; transform: translate(-50%, -50%); box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                                        {{ position.playerNumber }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategy Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Strategy Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-muted">Side</h6>
+                            <span class="badge bg-{{ strategy.side == 'T' ? 'danger' : 'primary' }} fs-6">
+                                {{ strategy.side }}
+                            </span>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-muted">Difficulty</h6>
+                            <span class="badge bg-secondary fs-6">{{ strategy.difficulty }}</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-muted">Players</h6>
+                            <h5 class="mb-0">{{ positions|length }}</h5>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-muted">Visibility</h6>
+                            <span class="badge bg-{{ strategy.isPublic ? 'success' : 'warning' }} fs-6">
+                                {{ strategy.isPublic ? 'Public' : 'Private' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_strategy_new') }}?map={{ strategy.map.id }}" class="btn btn-primary">Create Similar Strategy</a>
+                        <a href="{{ path('app_strategy_by_map', {slug: strategy.map.slug}) }}" class="btn btn-outline-info">View All {{ strategy.map.name }} Strategies</a>
+                        <a href="{{ path('app_strategy_index') }}" class="btn btn-outline-secondary">Back to Strategies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.player-marker {
+    transition: all 0.2s ease;
+}
+
+.player-marker:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+    z-index: 10;
+}
+
+.player-marker::after {
+    content: attr(data-role);
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.player-marker:hover::after {
+    opacity: 1;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event to player markers for tooltip info
+    document.querySelectorAll('.player-marker').forEach(marker => {
+        marker.addEventListener('click', function() {
+            const playerNumber = this.getAttribute('data-player');
+            const role = this.getAttribute('data-role');
+            const position = this.getAttribute('data-position');
+            
+            // You could show a modal or tooltip with more info here
+            console.log(`Player ${playerNumber} - ${role} at ${position}`);
+        });
+    });
+});
+</script>
+{% endblock %}

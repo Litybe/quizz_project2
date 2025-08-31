@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CS:GO Strategies{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Search & Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{{ path('app_strategy_index') }}">
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Search strategies...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="map" class="form-label">Map</label>
+                            <select class="form-control" id="map" name="map">
+                                <option value="">All Maps</option>
+                                {% for map in maps %}
+                                    <option value="{{ map.id }}" {{ selectedMap and selectedMap.id == map.id ? 'selected' : '' }}>
+                                        {{ map.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="side" class="form-label">Side</label>
+                            <select class="form-control" id="side" name="side">
+                                <option value="">All Sides</option>
+                                <option value="T" {{ selectedSide == 'T' ? 'selected' : '' }}>Terrorist</option>
+                                <option value="CT" {{ selectedSide == 'CT' ? 'selected' : '' }}>Counter-Terrorist</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <select class="form-control" id="difficulty" name="difficulty">
+                                <option value="">All Difficulties</option>
+                                <option value="Easy" {{ selectedDifficulty == 'Easy' ? 'selected' : '' }}>Easy</option>
+                                <option value="Medium" {{ selectedDifficulty == 'Medium' ? 'selected' : '' }}>Medium</option>
+                                <option value="Hard" {{ selectedDifficulty == 'Hard' ? 'selected' : '' }}>Hard</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <a href="{{ path('app_strategy_index') }}" class="btn btn-outline-secondary">Clear Filters</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ statistics.totalStrategies }}</h4>
+                            <small class="text-muted">Total Strategies</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ statistics.totalMaps }}</h4>
+                            <small class="text-muted">Active Maps</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h6 class="text-danger">{{ statistics.terroristStrategies }}</h6>
+                            <small class="text-muted">T Side</small>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-primary">{{ statistics.ctStrategies }}</h6>
+                            <small class="text-muted">CT Side</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Strategies -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Strategies</h5>
+                </div>
+                <div class="card-body">
+                    {% if recentStrategies is empty %}
+                        <p class="text-muted">No strategies yet</p>
+                    {% else %}
+                        {% for strategy in recentStrategies %}
+                            <div class="mb-2 pb-2 border-bottom">
+                                <h6 class="mb-1">
+                                    <a href="{{ path('app_strategy_show', {id: strategy.id}) }}" class="text-decoration-none">
+                                        {{ strategy.title }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">
+                                    {{ strategy.map.name }} • {{ strategy.side }} • {{ strategy.createdAt|date('M d') }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>CS:GO Strategies</h1>
+                <div class="d-flex gap-2">
+                    <a href="{{ path('app_strategy_maps') }}" class="btn btn-outline-info">View Maps</a>
+                    <a href="{{ path('app_strategy_new') }}" class="btn btn-primary">Create Strategy</a>
+                </div>
+            </div>
+
+            {% if strategies is empty %}
+                <div class="alert alert-info text-center">
+                    <h4>No strategies found</h4>
+                    <p>{% if search or selectedMap or selectedSide or selectedDifficulty %}
+                        Try adjusting your filters or 
+                    {% endif %}
+                    <a href="{{ path('app_strategy_new') }}" class="alert-link">create the first strategy</a>!</p>
+                </div>
+            {% else %}
+                <div class="row">
+                    {% for strategy in strategies %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                {% if strategy.map.image %}
+                                    <img src="{{ strategy.map.image }}" class="card-img-top" alt="{{ strategy.map.name }}" style="height: 150px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
+                                        <span class="text-white">{{ strategy.map.name }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ strategy.title }}</h5>
+                                    <p class="card-text">{{ strategy.description|length > 80 ? strategy.description|slice(0, 80) ~ '...' : strategy.description }}</p>
+                                    
+                                    <div class="d-flex gap-1 mb-2 flex-wrap">
+                                        <span class="badge bg-{{ strategy.side == 'T' ? 'danger' : 'primary' }}">
+                                            {{ strategy.side }}
+                                        </span>
+                                        <span class="badge bg-secondary">{{ strategy.difficulty }}</span>
+                                        <span class="badge bg-info">{{ strategy.map.name }}</span>
+                                        {% if not strategy.isPublic %}
+                                            <span class="badge bg-warning">Private</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            By {{ strategy.author.username }} • {{ strategy.createdAt|date('M d, Y') }}
+                                        </small>
+                                        <a href="{{ path('app_strategy_show', {id: strategy.id}) }}" class="btn btn-outline-primary btn-sm">View</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

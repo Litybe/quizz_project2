@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}CS:GO Maps{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>CS:GO Maps</h1>
+        <a href="{{ path('app_strategy_new') }}" class="btn btn-primary">Create New Strategy</a>
+    </div>
+
+    <div class="row">
+        {% for map in maps %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    {% if map.image %}
+                        <img src="{{ map.image }}" class="card-img-top" alt="{{ map.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="text-white">No Image</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ map.name }}</h5>
+                        {% if map.description %}
+                            <p class="card-text">{{ map.description|length > 100 ? map.description|slice(0, 100) ~ '...' : map.description }}</p>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">{{ map.strategies|length }} Strategies</span>
+                            <small class="text-muted">{{ map.isActive ? 'Active' : 'Inactive' }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex gap-2">
+                            <a href="{{ path('app_strategy_by_map', {slug: map.slug}) }}" class="btn btn-outline-primary btn-sm">View Strategies</a>
+                            {% if map.isActive %}
+                                <a href="{{ path('app_strategy_new') }}?map={{ map.id }}" class="btn btn-success btn-sm">Create Strategy</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if maps is empty %}
+        <div class="alert alert-info text-center">
+            <h4>No maps available</h4>
+            <p>Maps need to be initialized. Please run the initialization command:</p>
+            <code>php bin/console app:initialize-maps</code>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+

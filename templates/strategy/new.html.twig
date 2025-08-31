@@ -1,0 +1,382 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create New Strategy{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Form Section -->
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Create New Strategy</h1>
+                <a href="{{ path('app_strategy_index') }}" class="btn btn-outline-secondary">Back to Strategies</a>
+            </div>
+
+            <form method="post" class="strategy-form">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Strategy Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" required placeholder="e.g., A Site Rush, B Site Split">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="map" class="form-label">Map *</label>
+                            <select class="form-control" id="map" name="map" required>
+                                <option value="">Select a map</option>
+                                {% for map in maps %}
+                                    <option value="{{ map.id }}" {{ app.request.query.get('map') == map.id ? 'selected' : '' }}>
+                                        {{ map.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="side" class="form-label">Side *</label>
+                            <select class="form-control" id="side" name="side" required>
+                                <option value="">Select side</option>
+                                <option value="T">Terrorist (T)</option>
+                                <option value="CT">Counter-Terrorist (CT)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Difficulty *</label>
+                            <select class="form-control" id="difficulty" name="difficulty" required>
+                                <option value="">Select difficulty</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description *</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required 
+                              placeholder="Describe your strategy, what it accomplishes, and when to use it"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="execution" class="form-label">Execution Steps</label>
+                    <textarea class="form-control" id="execution" name="execution" rows="4" 
+                              placeholder="Step-by-step instructions for executing this strategy"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="counters" class="form-label">Counters</label>
+                    <textarea class="form-control" id="counters" name="counters" rows="3" 
+                              placeholder="How opponents might counter this strategy and how to adapt"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isPublic" name="isPublic" value="1" checked>
+                        <label class="form-check-label" for="isPublic">
+                            Make this strategy public (visible to all users)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Player Positions Section -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Player Positions</h5>
+                        <small class="text-muted">Click on the map to place players</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="positions-container">
+                            <!-- Positions will be added here dynamically -->
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="add-position">Add Player</button>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary btn-lg">Create Strategy</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Interactive Map Section -->
+        <div class="col-md-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h5 class="mb-0">Interactive Map</h5>
+                    <small class="text-muted">Click to place players, drag to move</small>
+                </div>
+                <div class="card-body">
+                    <div id="map-container" class="position-relative" style="width: 100%; height: 400px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+                        <div id="map-placeholder" class="d-flex align-items-center justify-content-center h-100">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-map fa-3x mb-3"></i>
+                                <p>Select a map to start placing players</p>
+                            </div>
+                        </div>
+                        <div id="map-image-container" style="display: none;">
+                            <img id="map-image" src="" alt="" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div id="player-markers"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>Instructions:</h6>
+                        <ol class="small text-muted">
+                            <li>Select a map from the dropdown</li>
+                            <li>Click anywhere on the map to place a player</li>
+                            <li>Drag players to reposition them</li>
+                            <li>Fill in player details in the form</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let positionCounter = 0;
+    let selectedMap = null;
+    let playerMarkers = [];
+    
+    // Map selection handler
+    document.getElementById('map').addEventListener('change', function() {
+        const mapId = this.value;
+        if (mapId) {
+            // In a real app, you'd fetch the map image from the server
+            // For now, we'll use a placeholder
+            showMapImage('/assets/images/map-placeholder.jpg');
+            selectedMap = mapId;
+        } else {
+            hideMapImage();
+        }
+    });
+    
+    // Show map image
+    function showMapImage(imageSrc) {
+        document.getElementById('map-placeholder').style.display = 'none';
+        document.getElementById('map-image-container').style.display = 'block';
+        document.getElementById('map-image').src = imageSrc;
+        document.getElementById('map-image').alt = 'Selected Map';
+    }
+    
+    // Hide map image
+    function hideMapImage() {
+        document.getElementById('map-placeholder').style.display = 'flex';
+        document.getElementById('map-image-container').style.display = 'none';
+        selectedMap = null;
+    }
+    
+    // Add new position form
+    document.getElementById('add-position').addEventListener('click', function() {
+        addPositionForm();
+    });
+    
+    // Add position form
+    function addPositionForm() {
+        const container = document.getElementById('positions-container');
+        const positionDiv = document.createElement('div');
+        positionDiv.className = 'position-item border rounded p-3 mb-3';
+        positionDiv.innerHTML = `
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Player #</label>
+                    <input type="number" class="form-control" name="positions[${positionCounter}][playerNumber]" value="${positionCounter + 1}" min="1" max="5" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Position Name</label>
+                    <input type="text" class="form-control" name="positions[${positionCounter}][positionName]" placeholder="e.g., Entry, Support" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Role</label>
+                    <select class="form-control" name="positions[${positionCounter}][role]">
+                        <option value="Entry">Entry</option>
+                        <option value="Support">Support</option>
+                        <option value="Lurker">Lurker</option>
+                        <option value="AWP">AWP</option>
+                        <option value="IGL">IGL</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger btn-sm remove-position">Remove</button>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-control" name="positions[${positionCounter}][description]" placeholder="What this player does">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Instructions</label>
+                    <input type="text" class="form-control" name="positions[${positionCounter}][instructions]" placeholder="Specific instructions for this player">
+                </div>
+            </div>
+            <input type="hidden" class="position-x" name="positions[${positionCounter}][x]" value="0">
+            <input type="hidden" class="hidden position-y" name="positions[${positionCounter}][y]" value="0">
+            <div class="mt-2">
+                <small class="text-muted">Click on the map to place this player</small>
+            </div>
+        `;
+        
+        container.appendChild(positionDiv);
+        positionCounter++;
+        
+        // Add remove functionality
+        positionDiv.querySelector('.remove-position').addEventListener('click', function() {
+            positionDiv.remove();
+            updateMapMarkers();
+        });
+    }
+    
+    // Map click handler
+    document.getElementById('map-container').addEventListener('click', function(e) {
+        if (!selectedMap) return;
+        
+        const rect = this.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        
+        // Find the last added position form and update coordinates
+        const lastPosition = document.querySelector('.position-item:last-child');
+        if (lastPosition) {
+            const xInput = lastPosition.querySelector('.position-x');
+            const yInput = lastPosition.querySelector('.position-y');
+            if (xInput && yInput) {
+                xInput.value = Math.round(x * 10) / 10;
+                yInput.value = Math.round(y * 10) / 10;
+                updateMapMarkers();
+            }
+        }
+    });
+    
+    // Update map markers
+    function updateMapMarkers() {
+        const markersContainer = document.getElementById('player-markers');
+        markersContainer.innerHTML = '';
+        
+        document.querySelectorAll('.position-item').forEach((item, index) => {
+            const x = parseFloat(item.querySelector('.position-x').value) || 0;
+            const y = parseFloat(item.querySelector('.position-y').value) || 0;
+            const playerNumber = item.querySelector('input[name*="[playerNumber]"]').value || index + 1;
+            const side = document.getElementById('side').value || 'T';
+            
+            if (x > 0 && y > 0) {
+                const marker = document.createElement('div');
+                marker.className = 'player-marker';
+                
+                // Different color for each player
+                const playerColors = [
+                    '#dc3545', // Red - Player 1
+                    '#007bff', // Blue - Player 2
+                    '#28a745', // Green - Player 3
+                    '#ffc107', // Yellow - Player 4
+                    '#6f42c1'  // Purple - Player 5
+                ];
+                
+                const colorIndex = (parseInt(playerNumber) - 1) % playerColors.length;
+                const playerColor = playerColors[colorIndex];
+                
+                marker.style.cssText = `
+                    position: absolute;
+                    left: ${x}%;
+                    top: ${y}%;
+                    width: 35px;
+                    height: 35px;
+                    background: ${playerColor};
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transform: translate(-50%, -50%);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    z-index: 10;
+                `;
+                marker.textContent = playerNumber;
+                
+                markersContainer.appendChild(marker);
+            }
+        });
+    }
+    
+    // Handle side change to update marker colors
+    document.getElementById('side').addEventListener('change', function() {
+        updateMapMarkers();
+    });
+    
+    // Add initial position form
+    addPositionForm();
+    
+    // Form validation
+    document.querySelector('.strategy-form').addEventListener('submit', function(e) {
+        const positions = document.querySelectorAll('.position-item');
+        if (positions.length === 0) {
+            e.preventDefault();
+            alert('Please add at least one player position.');
+            return;
+        }
+        
+        let hasValidPositions = false;
+        positions.forEach(position => {
+            const x = parseFloat(position.querySelector('.position-x').value);
+            const y = parseFloat(position.querySelector('.position-y').value);
+            if (x > 0 && y > 0) {
+                hasValidPositions = true;
+            }
+        });
+        
+        if (!hasValidPositions) {
+            e.preventDefault();
+            alert('Please place at least one player on the map.');
+            return;
+        }
+    });
+});
+</script>
+
+<style>
+.position-item {
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.position-item:hover {
+    background: #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.player-marker {
+    transition: all 0.2s ease;
+}
+
+.player-marker:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+}
+
+#map-container {
+    cursor: crosshair;
+}
+
+#map-container:hover {
+    border-color: #007bff;
+}
+
+.sticky-top {
+    z-index: 1020;
+}
+</style>
+{% endblock %}
