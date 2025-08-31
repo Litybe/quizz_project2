@@ -76,7 +76,10 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <button type="button" class="btn btn-secondary add-answer" data-question-index="{{ loop.index0 }}">Ajouter une Réponse</button>
+                        <div class="answer-buttons">
+                            <button type="button" class="btn btn-secondary add-answer" data-question-index="{{ loop.index0 }}">Ajouter une Réponse</button>
+                            <button type="button" class="btn btn-warning remove-last-answer" data-question-index="{{ loop.index0 }}">Supprimer la dernière réponse</button>
+                        </div>
                     </div>
                     
                     <div id="textual-answer-{{ loop.index0 }}" style="{{ question.isTextual ? '' : 'display: none;' }}">
@@ -218,6 +221,21 @@
         .btn-secondary:hover {
             background-color: #545b62;
         }
+        
+        .btn-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        
+        .answer-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
         .question {
             border: 1px solid #ddd;
             padding: 20px;
@@ -339,7 +357,10 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <button type="button" class="btn btn-secondary add-answer" data-question-index="${index}">Ajouter une Réponse</button>
+                    <div class="answer-buttons">
+                        <button type="button" class="btn btn-secondary add-answer" data-question-index="${index}">Ajouter une Réponse</button>
+                        <button type="button" class="btn btn-warning remove-last-answer" data-question-index="${index}">Supprimer la dernière réponse</button>
+                    </div>
                 </div>
                 <div id="textual-answer-${index}" style="display: none;">
                     <div>
@@ -409,11 +430,31 @@
             answersContainer.appendChild(newAnswer);
         }
 
+        // Fonction pour supprimer la dernière réponse
+        function removeLastAnswer(questionIndex) {
+            const answersContainer = document.querySelector(`#multiple-choice-answers-${questionIndex} .answers-container`);
+            const answers = answersContainer.children;
+            
+            if (answers.length > 2) { // Garder au moins 2 réponses
+                answersContainer.removeChild(answers[answers.length - 1]);
+            } else {
+                alert('Il doit y avoir au moins 2 réponses pour chaque question.');
+            }
+        }
+
         // Gestionnaire d'événements pour les boutons "Ajouter une Réponse"
         document.addEventListener('click', function(event) {
             if (event.target && event.target.classList.contains('add-answer')) {
                 const questionIndex = event.target.getAttribute('data-question-index');
                 addAnswer(questionIndex);
+            }
+        });
+
+        // Gestionnaire d'événements pour les boutons "Supprimer la dernière réponse"
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('remove-last-answer')) {
+                const questionIndex = event.target.getAttribute('data-question-index');
+                removeLastAnswer(questionIndex);
             }
         });
 
